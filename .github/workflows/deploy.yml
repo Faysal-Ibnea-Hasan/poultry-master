@@ -33,8 +33,12 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: /home/poultrym/poultrymasterbd.com/
+          timeout: 60000
+          max-attempts: 3
+          passive: true
           exclude: |
             **/.git*
             **/.git*/**
             **/node_modules/**
             tests/**
+            .env.example
