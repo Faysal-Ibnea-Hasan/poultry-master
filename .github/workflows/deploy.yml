@@ -29,7 +29,7 @@ jobs:
           sudo chmod -R 755 ./storage ./bootstrap/cache  # Fix permissions for storage and cache directories
 
       - name: Deploy via FTP
-        uses: SamKirkland/ftp-deploy-action@v4
+        uses: SamKirkland/ftp-deploy-action@v3  # Use the correct version v3
         with:
           server: poultrymasterbd.com
           username: ${{ secrets.FTP_USERNAME }}
