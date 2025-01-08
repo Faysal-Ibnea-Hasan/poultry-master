@@ -1,41 +1,21 @@
-name: Deploy Laravel App to cPanel via FTP
-
-on:
+on: 
   push:
     branches:
-      - main  # Trigger deployment on push to the main branch
+      - main
+name: 🚀 Deploy website on push
 
 jobs:
-  ftp-deploy:
+  web-deploy:
+    name: 🎉 Deploy website
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.0'  # Set the PHP version to 8.0.30 (ensure compatibility with cPanel)
-      
-      - name: Install Dependencies
-        run: |
-          composer install --optimize-autoloader --no-dev  # Install PHP dependencies
-          npm install  # Install Node dependencies (if applicable)
-          npm run build  # Build front-end assets (if applicable)
-
-      - name: Set file permissions
-        run: |
-          sudo chmod -R 755 ./storage ./bootstrap/cache  # Fix permissions for storage and cache directories
-
-      - name: Deploy via FTP
-        uses: appleboy/ftp-action@v1.0.0  # Using a stable and maintained FTP action
-        with:
-          host: poultrymasterbd.com
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: 21
-          local-dir: ./  # Path to your repository root
-          remote-dir: /home/poultrym/poultrymasterbd.com  # cPanel root directory
-          passive: true  # Set to true for passive FTP mode
-          sync: true  # Enable file sync
+    # Checkout the repository
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v4
+    # sync files via FTP
+    - name: 📂 Sync files via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ftp.poultrymasterbd.com
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
