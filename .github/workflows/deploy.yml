@@ -1,31 +1,41 @@
-name: Publish Website to CPanel
+name: Deploy Laravel App to cPanel via FTP
+
 on:
   push:
     branches:
-      - main
+      - main  # Trigger deployment on push to the main branch
+
 jobs:
-  FTP-Deploy-Action:
-    name: FTP-Deploy-Action
+  ftp-deploy:
     runs-on: ubuntu-latest
+    
     steps:
-    - uses: actions/checkout@v2.1.0
-      with:
-        fetch-depth: 2 
-    - name: Build assets
-      run: npm install && npm run build
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-    - name: Install PHP and Composer
-      uses: shivammathur/setup-php@v2
-      with:
-          php-version: '8.2' # Adjust to match the PHP version used by your Laravel project
-          tools: 'composer'
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'  # Set the PHP version to 8.0.30 (ensure compatibility with cPanel)
+      
+      - name: Install Dependencies
+        run: |
+          composer install --optimize-autoloader --no-dev  # Install PHP dependencies
+          npm install  # Install Node dependencies (if applicable)
+          npm run build  # Build front-end assets (if applicable)
 
-    - name: Install PHP dependencies
-      run: composer install --no-dev --optimize-autoloader
-        
-    - name: FTP-Deploy-Action
-      uses: SamKirkland/FTP-Deploy-Action@4.3.3
-      with:
-        server: ftp.poultrymasterbd.com
-        username: ${{ secrets.USERNAME }}
-        password: ${{ secrets.PASSWORD }}
+      - name: Set file permissions
+        run: |
+          sudo chmod -R 755 ./storage ./bootstrap/cache  # Fix permissions for storage and cache directories
+
+      - name: Deploy via FTP
+        uses: SamKirkland/ftp-deploy-action@v4
+        with:
+          server: poultrymasterbd.com
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftp
+          port: 21
+          local-dir: ./  # Path to your repository root
+          server-dir: /home/poultrym/poultrymasterbd.com  # cPanel root directory
+          log-level: verbose  # Enable verbose logging for better debugging
