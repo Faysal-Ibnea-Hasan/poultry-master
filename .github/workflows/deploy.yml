@@ -24,7 +24,7 @@ jobs:
           npm run build # If you have any front-end assets
 
       - name: Deploy via FTP
-        uses: SamKirkland/ftp-deploy-action@v4
+        uses: SamKirkland/ftp-deploy-action@v4.0.0  # Corrected version tag
         with:
           server: poultrymasterbd.com
           username: ${{ secrets.FTP_USERNAME }}
