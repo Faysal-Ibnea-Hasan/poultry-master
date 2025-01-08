@@ -12,10 +12,14 @@ jobs:
     # Checkout the repository
     - name: 🚚 Get latest code
       uses: actions/checkout@v4
-    # sync files via FTP
     - name: 📂 Sync files via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
         server: ftp.poultrymasterbd.com
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
+        port: 21
+        remote-dir: /home/poultrym/poultrymasterbd.com  # cPanel root directory
+        passive: true  # Use passive FTP
+        sync: true  # Synchronize files
+        log-level: verbose
