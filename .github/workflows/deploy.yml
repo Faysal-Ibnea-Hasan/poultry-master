@@ -29,13 +29,13 @@ jobs:
           sudo chmod -R 755 ./storage ./bootstrap/cache  # Fix permissions for storage and cache directories
 
       - name: Deploy via FTP
-        uses: SamKirkland/ftp-deploy-action@v3  # Use the correct version v3
+        uses: appleboy/ftp-action@v1.0.0  # Using a stable and maintained FTP action
         with:
-          server: poultrymasterbd.com
+          host: poultrymasterbd.com
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp
           port: 21
           local-dir: ./  # Path to your repository root
-          server-dir: /home/poultrym/poultrymasterbd.com  # cPanel root directory
-          log-level: verbose  # Enable verbose logging for better debugging
+          remote-dir: /home/poultrym/poultrymasterbd.com  # cPanel root directory
+          passive: true  # Set to true for passive FTP mode
+          sync: true  # Enable file sync
