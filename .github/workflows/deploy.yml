@@ -1,54 +1,36 @@
-name: Deploy Laravel to cPanel
+name: Deploy Laravel App to cPanel via FTP
 
 on:
   push:
     branches:
-      - main # or the branch you want to deploy from
+      - main  # Trigger deployment on push to the main branch
 
 jobs:
-  deploy:
+  ftp-deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'  # Set the PHP version to 8.0.30 (cPanel PHP version)
 
-    - name: Set Up PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.2' # Use the PHP version matching your cPanel environment
-        extensions: mbstring, pdo, tokenizer, xml, bcmath, ctype, fileinfo, curl
-        tools: composer
+      - name: Install Dependencies
+        run: |
+          composer install --optimize-autoloader --no-dev
+          npm install
+          npm run build # If you have any front-end assets
 
-    - name: Install Composer Dependencies
-      run: composer install --no-dev --optimize-autoloader
-
-    - name: Deploy to cPanel via SSH
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        SERVER_USERNAME: ${{ secrets.SERVER_USERNAME }}
-        SERVER_HOST: ${{ secrets.SERVER_HOST }}
-      run: |
-        mkdir -p ~/.ssh
-        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
-
-        rsync -avz --exclude=".git" \
-          --exclude="node_modules" \
-          --exclude="tests" \
-          ./ $SERVER_USERNAME@$SERVER_HOST:/home/$SERVER_USERNAME/public_html/laravel-app/
-
-    - name: Run Laravel Commands on Server
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        SERVER_USERNAME: ${{ secrets.SERVER_USERNAME }}
-        SERVER_HOST: ${{ secrets.SERVER_HOST }}
-      run: |
-        ssh $SERVER_USERNAME@$SERVER_HOST << 'EOF'
-        cd /home/$SERVER_USERNAME/public_html/laravel-app
-        php artisan config:cache
-        php artisan route:cache
-        php artisan view:cache
-        php artisan storage:link
-        EOF
+      - name: Deploy via FTP
+        uses: SamKirkland/ftp-deploy-action@v4
+        with:
+          server: poultrymasterbd.com
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftp
+          port: 21
+          local-dir: ./ # This points to your repository root directory
+          server-dir: /home/poultrym/poultrymasterbd.com  # cPanel deployment directory
+          log-level: verbose
