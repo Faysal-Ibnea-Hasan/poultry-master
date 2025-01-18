@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
     {
         User::factory()->create([
             'name' => 'admin@poultry_master',
-            'email' => 'admin@poultry.com',
+            'email' => 'admin@poultrymasterbd.com',
             'password' => Hash::make('admin123'),
             'email_verified_at' => Carbon::now(),
         ]);
