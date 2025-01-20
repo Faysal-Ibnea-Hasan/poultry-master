@@ -12,7 +12,6 @@ return new class extends Migration {
     {
         Schema::create('breeds', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('company_id');
             $table->string('name');
             $table->text('description')->nullable();
             $table->integer('average_life_span')->nullable();

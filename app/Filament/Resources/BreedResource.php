@@ -24,9 +24,6 @@ class BreedResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('company_id')
-                    ->required()
-                    ->numeric(),
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
@@ -47,16 +44,13 @@ class BreedResource extends Resource
     }
     public static function shouldRegisterNavigation(): bool // Hide or show in navigation
     {
-        return false;
+        return true;
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('company_id')
-                    ->numeric()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('average_life_span')

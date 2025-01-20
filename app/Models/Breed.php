@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Breed extends Model
 {
     protected $fillable = [
-        'company_id',
         'name',
         'description',
         'average_life_span',
