@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->string('name');
             $table->string('image')->nullable();
             $table->string('title')->nullable();
+            $table->enum('design_type', ['list', 'result'])->nullable();
             $table->timestamps();
         });
     }

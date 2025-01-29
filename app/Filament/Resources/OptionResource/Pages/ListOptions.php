@@ -10,10 +10,16 @@ class ListOptions extends ListRecords
 {
     protected static string $resource = OptionResource::class;
 
+
+    protected static ?string $title = 'Menu'; // Updated list page title
+
+
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()
+                ->icon('heroicon-o-plus')
+                ->label('Create Menu'),
         ];
     }
 }

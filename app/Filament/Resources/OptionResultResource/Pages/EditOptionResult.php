@@ -10,6 +10,7 @@ class EditOptionResult extends EditRecord
 {
     protected static string $resource = OptionResultResource::class;
 
+
     protected function getHeaderActions(): array
     {
         return [
@@ -17,4 +18,5 @@ class EditOptionResult extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
 }

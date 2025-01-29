@@ -25,20 +25,26 @@ class BreedResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->label('Breed name')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\Textarea::make('description')
+                    ->label('Breed description')
                     ->columnSpanFull(),
                 Forms\Components\TextInput::make('average_life_span')
+                    ->label('Average Life Span (months)')
                     ->numeric()
                     ->default(null),
                 Forms\Components\TextInput::make('average_weight')
+                    ->label('Average Weight (kg)')
                     ->numeric()
                     ->default(null),
                 Forms\Components\TextInput::make('purpose')
+                    ->label('Purpose')
                     ->maxLength(50)
                     ->default(null),
                 Forms\Components\Textarea::make('characteristics')
+                    ->label('Characteristics')
                     ->columnSpanFull(),
             ]);
     }

@@ -41,7 +41,7 @@ class UserResource extends Resource
 
     public static function shouldRegisterNavigation(): bool // Hide or show in navigation
     {
-        return false;
+        return true;
     }
 
     public static function table(Table $table): Table

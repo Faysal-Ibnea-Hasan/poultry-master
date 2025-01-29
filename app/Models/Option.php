@@ -9,7 +9,8 @@ class Option extends Model
     protected $fillable = [
         'name',
         'image',
-        'title'
+        'title',
+        'design_type'
     ];
 
     public function results()

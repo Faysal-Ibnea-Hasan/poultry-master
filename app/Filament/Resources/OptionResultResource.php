@@ -22,46 +22,65 @@ class OptionResultResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Menu';
+    protected static ?string $navigationLabel = 'Menu Results';
+    protected static ?string $breadcrumb = 'Menu Results';
+
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Select::make('option_id')
-                    ->label('Option')
+                    ->label('Menu')
                     ->required()
                     ->searchable()
-                    ->options(function () {
-                        return Option::all()->pluck('name', 'id'); // 'id' will be submitted as the value
-                    }),
+                    ->options(fn() => Option::pluck('name', 'id')) // Fetch options
+                    ->reactive()
+                    ->afterStateUpdated(fn($state, callable $set) => $set('design_type', Option::find($state)?->design_type)
+                    ),
+
+                Forms\Components\TextInput::make('design_type')
+                    ->label('Design Type')
+                    ->disabled()
+                    ->default(fn($get) => Option::find($get('option_id'))?->design_type)
+                    ->dehydrated(false)
+                    ->visible(fn($get) => filled($get('design_type'))),
+
                 Forms\Components\Select::make('breed_id')
                     ->label('Breed')
                     ->required()
                     ->searchable()
-                    ->options(function () {
-                        return Breed::all()->pluck('name', 'id'); // 'id' will be submitted as the value
-                    }),
+                    ->options(fn() => Breed::pluck('name', 'id'))
+                    ->visible(fn($get) => Option::find($get('option_id'))?->design_type === 'result'),
+
                 Forms\Components\Select::make('option_attribute_id')
                     ->label('Attribute')
                     ->searchable()
-                    ->options(function () {
-                        return OptionAttribute::all()->pluck('name', 'id'); // 'id' will be submitted as the value
-                    }),
+                    ->options(fn() => OptionAttribute::pluck('name', 'id'))
+                    ->visible(fn($get) => Option::find($get('option_id'))?->design_type === 'result'),
+
                 Forms\Components\TextInput::make('value')
                     ->label('Value')
                     ->maxLength(255)
-                    ->default(null),
+                    ->default(null)
+                    ->visible(fn($get) => Option::find($get('option_id'))?->design_type === 'result'),
+
                 Forms\Components\TextInput::make('day')
                     ->label('Day')
                     ->numeric()
-                    ->default(null),
+                    ->default(null)
+                    ->visible(fn($get) => Option::find($get('option_id'))?->design_type === 'result'),
             ]);
     }
+
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('day')
+                    ->numeric()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('option.name')
                     ->numeric()
                     ->sortable(),
@@ -73,9 +92,6 @@ class OptionResultResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('value')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('day')
-                    ->numeric()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -91,6 +107,7 @@ class OptionResultResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

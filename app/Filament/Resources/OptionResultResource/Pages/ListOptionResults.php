@@ -9,11 +9,14 @@ use Filament\Resources\Pages\ListRecords;
 class ListOptionResults extends ListRecords
 {
     protected static string $resource = OptionResultResource::class;
+    protected static ?string $title = 'Menu Results'; // Updated list page title
 
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()
+                ->icon('heroicon-o-plus')
+                ->label('Add Results'),
         ];
     }
 }
