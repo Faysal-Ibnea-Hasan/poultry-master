@@ -17,7 +17,7 @@ class OptionAttributeResource extends Resource
 {
     protected static ?string $model = OptionAttribute::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-s-list-bullet';
     protected static ?string $navigationGroup = 'Menu';
     protected static ?string $navigationLabel = 'Menu Attributes';
     protected static ?string $breadcrumb = 'Menu Attributes';

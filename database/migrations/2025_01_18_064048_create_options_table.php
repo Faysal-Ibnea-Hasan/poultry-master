@@ -15,7 +15,10 @@ return new class extends Migration {
             $table->string('name');
             $table->string('image')->nullable();
             $table->string('title')->nullable();
-            $table->enum('design_type', ['list', 'result'])->nullable();
+            $table->integer('order')->nullable();
+            $table->boolean('status')->default(true)->nullable();
+            $table->boolean('isPro')->default(false)->nullable();
+            $table->enum('design_type', ['list', 'calculator'])->nullable();
             $table->timestamps();
         });
     }

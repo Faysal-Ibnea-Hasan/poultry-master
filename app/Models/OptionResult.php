@@ -28,4 +28,8 @@ class OptionResult extends Model
     {
         return $this->belongsTo(OptionAttribute::class, 'option_attribute_id');
     }
+    public function companyChick()
+    {
+        return $this->hasOne(CompanyAndChick::class,'option_id','option_id'); // Or another appropriate relationship
+    }
 }

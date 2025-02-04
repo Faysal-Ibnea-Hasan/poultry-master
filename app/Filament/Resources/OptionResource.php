@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\OptionResource\Pages;
+use Filament\Infolists\Components\Grid;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
@@ -17,9 +18,8 @@ use Filament\Tables\Table;
 class OptionResource extends Resource
 {
     protected static ?string $model = Option::class;
-    protected static ?string $title = 'Menu';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-s-wrench-screwdriver';
     protected static ?string $navigationGroup = 'Menu';
     protected static ?string $navigationLabel = 'Menu';
     protected static ?string $breadcrumb = 'Menu';
@@ -33,7 +33,8 @@ class OptionResource extends Resource
                     ->required()
                     ->label('Menu Name')
                     ->maxLength(255)
-                    ->placeholder('Enter a menu name'),
+                    ->placeholder('Enter a menu name')
+                    ->unique(table: 'options', column: 'name'), // Ensure uniqueness
                 Forms\Components\TextInput::make('title')
                     ->label('Dynamic Title')
                     ->maxLength(255)
@@ -49,7 +50,7 @@ class OptionResource extends Resource
                     ->required()
                     ->options([
                         'list' => 'List', // 'list' is the value, 'List View' is the label
-                        'result' => 'Result', // 'result' is the value, 'Result View' is the label
+                        'calculator' => 'Calculator', // 'result' is the value, 'Result View' is the label
                     ])
                     ->placeholder('Select a design type'),
             ]);
@@ -61,30 +62,32 @@ class OptionResource extends Resource
         return $infolist
             ->schema(
                 fn($record) => collect($record->results)
-                    ->groupBy('day') // Group by 'day'
-                    ->map(fn($results, $day) =>
-                    Section::make("Day: $day") // Create a section for each day
-                    ->schema([
-                        TextEntry::make('name'),
-                        TextEntry::make('title'),
-                        TextEntry::make('design_type'),
+                    ->groupBy(fn($result) => optional($result->breed)->name ?? 'Unknown Breed') // Group by Breed first
+                    ->map(fn($results, $breedName) => Section::make("Breed: $breedName") // Section for each Breed
+                    ->schema(
+                        collect($results)
+                            ->groupBy('day') // Now group by Day within each Breed
+                            ->map(fn($dayResults, $day) => Section::make("Day: $day") // Section for each Day
+                            ->schema([
+                                Grid::make(3) // ✅ 3 Columns Per Row
+                                ->schema(
+                                    collect($dayResults)->map(fn($result) => [
+                                        TextEntry::make("results_{$result->id}_day")
+                                            ->label('Day')
+                                            ->default($result->day),
+                                        TextEntry::make("results_{$result->id}_attribute")
+                                            ->label('Attribute')
+                                            ->default(optional($result->attribute)->name),
+                                        TextEntry::make("results_{$result->id}_value")
+                                            ->label('Value')
+                                            ->default($result->value),
 
-                        // Iterate over results for that day
-                        ...collect($results)->map(fn($result) => [
-                            TextEntry::make("results_{$result->id}_value")
-                                ->label('Value')
-                                ->default($result->value),
-
-                            TextEntry::make("results_{$result->id}_attribute")
-                                ->label('Attribute')
-                                ->default(optional($result->attribute)->name),
-
-                            TextEntry::make("results_{$result->id}_breed")
-                                ->label('Breed')
-                                ->default(optional($result->breed)->name),
-                        ])->flatten()->toArray(),
-                    ])
-                    )->values()->toArray() // Convert to an array for Filament
+                                    ])->flatten()->toArray()
+                                ),
+                            ])
+                            )->values()->toArray() // Convert to array
+                    )
+                    )->values()->toArray() // Convert to array
             );
     }
 

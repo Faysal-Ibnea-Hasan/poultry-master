@@ -20,6 +20,8 @@ class UserSeeder extends Seeder
             'email' => 'admin@poultrymasterbd.com',
             'password' => Hash::make('admin123'),
             'email_verified_at' => Carbon::now(),
+            'phone'=>'01673724510',
+            'isAdmin' => true,
         ]);
     }
 }

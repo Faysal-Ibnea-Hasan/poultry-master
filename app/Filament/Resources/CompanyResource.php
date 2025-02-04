@@ -18,7 +18,7 @@ class CompanyResource extends Resource
     protected static ?string $model = Company::class;
 
     protected static ?string $navigationIcon = 'heroicon-s-building-office-2';
-    protected static ?int $navigationSort = 2; // Position in the navigation bar (lower = higher priority)
+    protected static ?string $navigationGroup = 'Menu';
 
     public static function form(Form $form): Form
     {
@@ -29,28 +29,29 @@ class CompanyResource extends Resource
                     ->maxLength(255),
                 Forms\Components\Textarea::make('address')
                     ->columnSpanFull(),
-                Forms\Components\TextInput::make('contact_person')
-                    ->maxLength(255)
-                    ->default(null),
-                Forms\Components\TextInput::make('phone')
-                    ->tel()
-                    ->maxLength(255)
-                    ->default(null),
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->maxLength(255)
-                    ->default(null),
-                Forms\Components\TextInput::make('logo')
-                    ->maxLength(255)
-                    ->default(null),
-                Forms\Components\TextInput::make('registration_number')
-                    ->maxLength(255)
-                    ->default(null),
+//                Forms\Components\TextInput::make('contact_person')
+//                    ->maxLength(255)
+//                    ->default(null),
+//                Forms\Components\TextInput::make('phone')
+//                    ->tel()
+//                    ->maxLength(255)
+//                    ->default(null),
+//                Forms\Components\TextInput::make('email')
+//                    ->email()
+//                    ->maxLength(255)
+//                    ->default(null),
+//                Forms\Components\TextInput::make('logo')
+//                    ->maxLength(255)
+//                    ->default(null),
+//                Forms\Components\TextInput::make('registration_number')
+//                    ->maxLength(255)
+//                    ->default(null),
             ]);
     }
+
     public static function shouldRegisterNavigation(): bool // Hide or show in navigation
     {
-        return false;
+        return true;
     }
 
     public static function table(Table $table): Table
@@ -59,15 +60,15 @@ class CompanyResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('contact_person')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('phone')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('email')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('logo')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('registration_number')
+                Tables\Columns\TextColumn::make('address')
+                    ->searchable()
+//                Tables\Columns\TextColumn::make('phone')
+//                    ->searchable(),
+//                Tables\Columns\TextColumn::make('email')
+//                    ->searchable(),
+//                Tables\Columns\TextColumn::make('logo')
+//                    ->searchable(),
+//                Tables\Columns\TextColumn::make('registration_number')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
