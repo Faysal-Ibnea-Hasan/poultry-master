@@ -23,7 +23,7 @@ class BulkSmsService
             'api_key' => $this->apiKey,
             'senderid' => $this->senderId,
             'number' => $phone,
-            'message' => $message,
+            'message' => 'Your Poultry Master OTP Code is: ' . $message,
         ]);
 
         return $response->json();

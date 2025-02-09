@@ -27,7 +27,7 @@ class AuthRepository implements AuthInterface
             ], 200);
         }
 
-        $otp = rand(100000, 999999);
+        $otp = rand(1000, 9999);
 
         $user = User::create([
             'phone' => $data['msisdn'],

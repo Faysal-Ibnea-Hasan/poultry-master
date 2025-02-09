@@ -24,7 +24,7 @@ class UserController extends Controller
             'pin' => 'required|string',
         ]);
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+            return response()->json($validator->errors(), 200);
         }
         $success = $this->authRepo->login($request->all());
         if ($success) {
@@ -33,7 +33,7 @@ class UserController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Invalid login details'
-            ]);
+            ], 200);
         }
     }
 
@@ -46,7 +46,7 @@ class UserController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'OTP request failed'
-            ], 500);
+            ], 200);
         }
     }
 
@@ -59,7 +59,7 @@ class UserController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'OTP request failed'
-            ], 500);
+            ], 200);
         }
     }
 
@@ -69,7 +69,7 @@ class UserController extends Controller
             'pin' => 'required|string',
         ]);
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json($validator->errors(), 200);
         }
         $user = $this->authRepo->setupPin($request->pin);
         if ($user) {
@@ -78,7 +78,7 @@ class UserController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Pin setup failed'
-            ], 500);
+            ], 200);
         }
     }
 

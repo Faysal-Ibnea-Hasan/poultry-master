@@ -43,7 +43,6 @@ class OptionResultResource extends Resource
                     ->label('Design Type')
                     ->disabled()
                     ->default(fn($get) => Option::find($get('option_id'))?->design_type)
-                    ->dehydrated(false)
                     ->visible(fn($get) => filled($get('design_type'))),
 
                 // Fields when design_type is 'calculator'
@@ -101,7 +100,7 @@ class OptionResultResource extends Resource
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-
+        \Log::info('Form Data:', $data); // Debugging: Check what data is actually being passed
         // You can also manipulate data based on design_type
         if ($data['design_type'] === 'list') {
             // Perform logic for 'list' design type (e.g., creating a related record)
