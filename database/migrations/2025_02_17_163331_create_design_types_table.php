@@ -10,10 +10,12 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('banners', function (Blueprint $table) {
+        Schema::create('design_types', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->string('image')->nullable();
+            $table->string('type');
+            $table->integer('order')->nullable();
+            $table->boolean('isPro')->default(0);
+            $table->boolean('status')->default(1);
             $table->timestamps();
         });
     }
@@ -23,6 +25,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('banners');
+        Schema::dropIfExists('design_types');
     }
 };

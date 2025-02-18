@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->string('password')->nullable();
             $table->string('role')->nullable();
             $table->string('phone');
+            $table->string('country_code', 10); // E.g., +1, +91
             $table->text('address')->nullable();
             $table->boolean('isAdmin')->nullable();
             $table->string('otp')->nullable();

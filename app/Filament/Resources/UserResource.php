@@ -17,31 +17,44 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-s-user-plus';
-    protected static ?int $navigationSort = 1; // Position in the navigation bar (lower = higher priority)
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->default(null),
                 Forms\Components\TextInput::make('email')
                     ->email()
-                    ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->default(null),
                 Forms\Components\DateTimePicker::make('email_verified_at'),
                 Forms\Components\TextInput::make('password')
                     ->password()
+                    ->maxLength(255)
+                    ->default(null),
+                Forms\Components\TextInput::make('role')
+                    ->maxLength(255)
+                    ->default(null),
+                Forms\Components\TextInput::make('phone')
+                    ->tel()
                     ->required()
                     ->maxLength(255),
+                Forms\Components\TextInput::make('country_code')
+                    ->required()
+                    ->maxLength(10),
+                Forms\Components\Textarea::make('address')
+                    ->columnSpanFull(),
+                Forms\Components\Toggle::make('isAdmin'),
+                Forms\Components\TextInput::make('otp')
+                    ->maxLength(255)
+                    ->default(null),
+                Forms\Components\Toggle::make('status')
+                    ->required(),
+                Forms\Components\DateTimePicker::make('last_login'),
             ]);
-    }
-
-    public static function shouldRegisterNavigation(): bool // Hide or show in navigation
-    {
-        return true;
     }
 
     public static function table(Table $table): Table
@@ -52,9 +65,15 @@ class UserResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('phone')
+                    ->searchable(),
+                Tables\Columns\IconColumn::make('isAdmin')
+                    ->boolean(),
+                Tables\Columns\IconColumn::make('status')
+                    ->boolean(),
                 Tables\Columns\TextColumn::make('role')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('email_verified_at')
+                Tables\Columns\TextColumn::make('last_login')
                     ->dateTime()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -70,7 +89,6 @@ class UserResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -92,7 +110,6 @@ class UserResource extends Resource
         return [
             'index' => Pages\ListUsers::route('/'),
             'create' => Pages\CreateUser::route('/create'),
-            'view' => Pages\ViewUser::route('/{record}'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
     }

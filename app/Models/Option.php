@@ -10,7 +10,14 @@ class Option extends Model
         'name',
         'image',
         'title',
-        'design_type'
+        'status',
+        'isPro',
+        'order',
+        'design_type_id',
+        'sub_title',
+        'content_type',
+        'link',
+        'action',
     ];
 
     public function results()
@@ -21,6 +28,11 @@ class Option extends Model
     public function attributes()
     {
         return $this->hasMany(OptionAttribute::class);
+    }
+
+    public function designType()
+    {
+        return $this->belongsTo(DesignType::class, 'design_type_id');
     }
 
 

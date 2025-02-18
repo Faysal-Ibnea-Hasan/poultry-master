@@ -12,13 +12,17 @@ return new class extends Migration {
     {
         Schema::create('options', function (Blueprint $table) {
             $table->id();
+            $table->unsignedInteger('design_type_id');
             $table->string('name');
             $table->string('image')->nullable();
             $table->string('title')->nullable();
+            $table->string('sub_title')->nullable();
+            $table->string('content_type')->nullable();
+            $table->text('link')->nullable();
+            $table->string('action')->nullable(); // e.g. Home, Subscription etc
             $table->integer('order')->nullable();
-            $table->boolean('status')->default(true)->nullable();
-            $table->boolean('isPro')->default(false)->nullable();
-            $table->enum('design_type', ['list', 'calculator'])->nullable();
+            $table->boolean('status')->default(1);
+            $table->boolean('isPro')->default(0);
             $table->timestamps();
         });
     }

@@ -102,7 +102,7 @@ class BreedResource extends Resource
         return [
             'index' => Pages\ListBreeds::route('/'),
             'create' => Pages\CreateBreed::route('/create'),
-            'view' => Pages\ViewBreed::route('/{record}'),
+//            'view' => Pages\ViewBreed::route('/{record}'),
             'edit' => Pages\EditBreed::route('/{record}/edit'),
         ];
     }

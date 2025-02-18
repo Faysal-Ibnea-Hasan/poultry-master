@@ -10,6 +10,9 @@ use App\Models\CompanyAndChick;
 use App\Models\Option;
 use App\Models\OptionAttribute;
 use App\Models\OptionResult;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -17,6 +20,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class OptionResultResource extends Resource
 {
@@ -27,93 +31,191 @@ class OptionResultResource extends Resource
     protected static ?string $navigationLabel = 'Menu Results';
     protected static ?string $breadcrumb = 'Menu Results';
 
+//    public static function form(Form $form): Form
+//    {
+//        return $form
+//            ->schema([
+//                Select::make('option_id')
+//                    ->label('Menu')
+//                    ->required()
+//                    ->searchable()
+//                    ->options(fn() => Option::pluck('name', 'id'))
+//                    ->reactive()
+//                    ->afterStateUpdated(fn($state, callable $set) => $set('design_type', Option::find($state)?->designType?->type)),
+//
+//                TextInput::make('design_type')
+//                    ->label('Design Type')
+//                    ->disabled()
+//                    ->default(fn($get) => Option::find($get('option_id'))?->designType?->type)
+//                    ->dehydrated()
+//                    ->visible(fn($get) => filled($get('design_type'))),
+//
+//                // Fields when design_type is 'calculator'
+//                Section::make('Calculator Fields')
+//                    ->schema([
+//                        Select::make('breed_id')
+//                            ->label('Breed')
+//                            ->required()
+//                            ->searchable()
+//                            ->options(fn() => Breed::pluck('name', 'id')),
+//
+//                        Select::make('option_attribute_id')
+//                            ->label('Attribute')
+//                            ->searchable()
+//                            ->options(fn() => OptionAttribute::pluck('name', 'id')),
+//
+//                        TextInput::make('value')
+//                            ->label('Value')
+//                            ->maxLength(255)
+//                            ->default(null),
+//
+//                        TextInput::make('day')
+//                            ->label('Day')
+//                            ->numeric()
+//                            ->default(null),
+//                    ])
+//                    ->visible(fn($get) => $get('design_type') === 'Calculator'), // Using type name instead of ID
+//
+//                // Fields when design_type is 'list'
+//                Section::make('List Fields')
+//                    ->schema([
+//                        Grid::make(2)->schema([
+//                            Select::make('company_id')
+//                                ->label('Company')
+//                                ->required()
+//                                ->searchable()
+//                                ->options(fn() => Company::pluck('name', 'id')),
+//
+//                            Select::make('type')
+//                                ->label('Type')
+//                                ->required()
+//                                ->options([
+//                                    'broiler' => 'Broiler',
+//                                    'layer' => 'Layer',
+//                                ]),
+//                        ]),
+//
+//                        Repeater::make('breeds')
+//                            ->label('Breeds')
+//                            ->schema([
+//                                Select::make('breed_id')
+//                                    ->label('Breed')
+//                                    ->required()
+//                                    ->searchable()
+//                                    ->options(fn() => Breed::pluck('name', 'id')),
+//                            ])
+//                            ->addable(true)
+//                            ->reorderable(true),
+//                    ])
+//                    ->visible(fn($get) => $get('design_type') === 'List'), // Using type name instead of ID
+//            ]);
+//    }
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Select::make('option_id')
-                    ->label('Menu')
-                    ->required()
-                    ->searchable()
-                    ->options(fn() => Option::pluck('name', 'id'))
-                    ->reactive()
-                    ->afterStateUpdated(fn($state, callable $set) => $set('design_type', Option::find($state)?->design_type)),
+                Card::make()->schema([
+                    Select::make('option_id')
+                        ->label('Menu')
+                        ->required()
+                        ->searchable()
+                        ->options(fn() => Option::pluck('name', 'id'))
+                        ->reactive()
+                        ->afterStateUpdated(fn($state, callable $set) =>
+                        $set('design_type', Option::find($state)?->designType?->type)
+                        ),
 
-                TextInput::make('design_type')
-                    ->label('Design Type')
-                    ->disabled()
-                    ->default(fn($get) => Option::find($get('option_id'))?->design_type)
-                    ->visible(fn($get) => filled($get('design_type'))),
+                    TextInput::make('design_type')
+                        ->label('Design Type')
+                        ->disabled()
+                        ->default(fn($get) => Option::find($get('option_id'))?->designType?->type)
+                        ->dehydrated()
+                        ->visible(fn($get) => filled($get('design_type')))
+                        ->afterStateHydrated(fn($state, callable $set, $record) =>
+                        $set('design_type', $record?->option?->designType?->type)
+                        )
+                        ->extraAttributes(['class' => 'text-blue-600 font-semibold']),
+                ])
+                    ->columnSpanFull(),
 
                 // Fields when design_type is 'calculator'
                 Section::make('Calculator Fields')
+                    ->description('Fill in the required details for calculator-based design.')
+                    ->collapsible()
                     ->schema([
-                        Select::make('breed_id')
-                            ->label('Breed')
-                            ->required()
-                            ->searchable()
-                            ->options(fn() => Breed::pluck('name', 'id')),
+                        Grid::make(2)->schema([
+                            Select::make('breed_id')
+                                ->label('🐾 Breed')
+                                ->required()
+                                ->searchable()
+                                ->options(fn() => Breed::pluck('name', 'id'))
+                                ->placeholder('Select a breed'),
 
-                        Select::make('option_attribute_id')
-                            ->label('Attribute')
-                            ->searchable()
-                            ->options(fn() => OptionAttribute::pluck('name', 'id')),
+                            Select::make('option_attribute_id')
+                                ->label('📌 Attribute')
+                                ->searchable()
+                                ->options(fn() => OptionAttribute::pluck('name', 'id'))
+                                ->placeholder('Choose an attribute'),
+                        ]),
 
-                        TextInput::make('value')
-                            ->label('Value')
-                            ->maxLength(255)
-                            ->default(null),
+                        Grid::make(2)->schema([
+                            TextInput::make('value')
+                                ->label('📏 Value')
+                                ->maxLength(255)
+                                ->default(null)
+                                ->placeholder('Enter value...'),
 
-                        TextInput::make('day')
-                            ->label('Day')
-                            ->numeric()
-                            ->default(null),
+                            TextInput::make('day')
+                                ->label('📅 Day')
+                                ->numeric()
+                                ->default(null)
+                                ->placeholder('Enter number of days'),
+                        ]),
                     ])
-                    ->visible(fn($get) => $get('design_type') === 'calculator'),
+                    ->visible(fn($get) => $get('design_type') === 'Calculator'),
 
                 // Fields when design_type is 'list'
-                Section::make('List Fields')
+                Section::make('📋 List Fields')
+                    ->description('Provide details for list-based design.')
+                    ->collapsible()
                     ->schema([
-                        Select::make('company_id')
-                            ->label('Company')
-                            ->required()
-                            ->searchable()
-                            ->options(fn() => Company::pluck('name', 'id')),
+                        Grid::make(2)->schema([
+                            Select::make('company_id')
+                                ->label('🏢 Company')
+                                ->required()
+                                ->searchable()
+                                ->options(fn() => Company::pluck('name', 'id'))
+                                ->placeholder('Select a company'),
 
-                        Select::make('breed_id')
-                            ->label('Breed')
-                            ->required()
-                            ->searchable()
-                            ->options(fn() => Breed::pluck('name', 'id')),
+                            Select::make('type')
+                                ->label('🐔 Type')
+                                ->required()
+                                ->options([
+                                    'broiler' => 'Broiler',
+                                    'layer' => 'Layer',
+                                ])
+                                ->placeholder('Choose type'),
+                        ]),
 
-                        Select::make('type')
-                            ->label('Type')
-                            ->required()
-                            ->options([
-                                'broiler' => 'Broiler',
-                                'layer' => 'Layer',
-                            ]),
+                        Repeater::make('breeds')
+                            ->label('🐾 Breeds')
+                            ->schema([
+                                Select::make('breed_id')
+                                    ->label('🦆 Breed')
+                                    ->required()
+                                    ->searchable()
+                                    ->options(fn() => Breed::pluck('name', 'id')),
+                            ])
+                            ->addable(true)
+                            ->reorderable(true)
+                            ->columnSpanFull(),
                     ])
-                    ->visible(fn($get) => $get('design_type') === 'list'),
-            ]);
+                    ->visible(fn($get) => $get('design_type') === 'List'),
+            ])
+            ->columns(2); // Makes the form layout more structured
     }
 
-    protected function mutateFormDataBeforeCreate(array $data): array
-    {
-        \Log::info('Form Data:', $data); // Debugging: Check what data is actually being passed
-        // You can also manipulate data based on design_type
-        if ($data['design_type'] === 'list') {
-            // Perform logic for 'list' design type (e.g., creating a related record)
-            CompanyAndChick::create([
-                'option_id' => $data['option_id'],
-                'company_id' => $data['company_id'],
-                'breed_id' => $data['breed_id'],
-                'type' => $data['type'],
-            ]);
-        }
 
-        return $data; // Return the mutated data
-    }
 
 
     public static function table(Table $table): Table
@@ -127,9 +229,6 @@ class OptionResultResource extends Resource
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('breed.name')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('type')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('attribute.name')

@@ -3,11 +3,13 @@
 namespace App\Repositories;
 
 use App\Interfaces\AuthInterface;
-use App\Models\CompanyAndChick;
 use App\Models\User;
 use App\Services\BulkSmsService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use libphonenumber\PhoneNumberFormat;
+use libphonenumber\PhoneNumberUtil;
 
 class AuthRepository implements AuthInterface
 {
@@ -22,47 +24,45 @@ class AuthRepository implements AuthInterface
     {
         if ($this->checkIfUserExists($data['msisdn'])) {
             return response()->json([
-                'status' => true,
+                'status' => false,
                 'message' => 'User already exists'
             ], 200);
         }
 
         $otp = rand(1000, 9999);
 
-        $user = User::create([
-            'phone' => $data['msisdn'],
-            'otp' => $otp
-        ]);
+        DB::beginTransaction();
+        try {
+            $country_code = $this->getCountryCode($data['region']);
+            $formatted_number = $this->formatPhoneNumber($data['msisdn'], $data['region']);
+            $user = User::create([
+                'phone' => $formatted_number,
+                'country_code' => $country_code,
+                'otp' => $otp
+            ]);
 
-        if (!$user) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Failed to create user'
-            ], 500);
-        }
+            if (!$this->bulkSmsService->sendSms($data['msisdn'], $otp)) {
+                throw new \Exception('Failed to send OTP');
+            }
 
-        if ($this->bulkSmsService->sendSms($data['msisdn'], $otp)) {
+            DB::commit();
+
             return response()->json([
                 'status' => true,
-                'message' => 'OTP sent successfully'
+                'message' => 'OTP sent successfully',
+                'msisdn' => $user->phone,
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
             ], 200);
         }
-
-        return response()->json([
-            'status' => false,
-            'message' => 'Failed to send OTP'
-        ], 500);
     }
 
     public function verifyOtp(array $data)
     {
-        if (empty($data['consent']) || empty($data['msisdn'])) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Phone number and consent are required'
-            ], 400);
-        }
-
         $user = User::where('phone', $data['msisdn'])
             ->where('otp', $data['consent'])
             ->first();
@@ -70,14 +70,11 @@ class AuthRepository implements AuthInterface
         if (!$user) {
             return response()->json([
                 'status' => false,
-                'message' => 'Consent does not match'
-            ], 401);
+                'message' => 'Invalid OTP'
+            ], 200);
         }
 
-        // Generate Sanctum token
         $token = $user->createToken('auth_token')->plainTextToken;
-
-        // Optionally, reset OTP after successful verification
         $user->update(['otp' => null]);
 
         return response()->json([
@@ -90,9 +87,7 @@ class AuthRepository implements AuthInterface
 
     public function setupPin(string $pin)
     {
-        // Get the authenticated user
         $user = Auth::user();
-
         if (!$user) {
             return response()->json([
                 'status' => false,
@@ -100,10 +95,7 @@ class AuthRepository implements AuthInterface
             ], 401);
         }
 
-        // Hash and store the PIN
-        $user->update([
-            'password' => Hash::make($pin)
-        ]);
+        $user->update(['password' => Hash::make($pin)]);
 
         return response()->json([
             'status' => true,
@@ -119,10 +111,9 @@ class AuthRepository implements AuthInterface
             return response()->json([
                 'status' => false,
                 'message' => 'Invalid credentials'
-            ], 401);
+            ], 200);
         }
 
-        // Generate new token after login
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -133,11 +124,29 @@ class AuthRepository implements AuthInterface
         ], 200);
     }
 
-
     private function checkIfUserExists(string $msisdn): bool
     {
         return User::where('phone', $msisdn)->exists();
     }
 
+    public function getCountryCode(string $region)
+    {
+        $phoneUtil = PhoneNumberUtil::getInstance();
+        $region = strtoupper($region);
+        return $phoneUtil->getCountryCodeForRegion($region);
+    }
+
+    public function getAllValidRegions()
+    {
+        $phoneUtil = PhoneNumberUtil::getInstance();
+        return $phoneUtil->getSupportedRegions(); // Returns an array of country codes
+    }
+
+    public function formatPhoneNumber(string $msisdn, string $region)
+    {
+        $phoneUtil = PhoneNumberUtil::getInstance();
+        $parsedNumber = $phoneUtil->parse($msisdn, $region);
+        return $phoneUtil->format($parsedNumber, PhoneNumberFormat::E164);
+    }
 
 }
