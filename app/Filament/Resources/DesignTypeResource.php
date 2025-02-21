@@ -9,6 +9,8 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -24,8 +26,10 @@ class DesignTypeResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('type')
-                    ->required()
-                    ->maxLength(255),
+                    ->label('Type')
+                    ->disabled() // Makes the field non-editable
+                    ->default(fn($get, $record) => $record?->type ?? '') // Ensures the value is shown
+                    ->dehydrated(), // Ensures it's still part of the form submission
                 Forms\Components\TextInput::make('order')
                     ->numeric()
                     ->unique('design_types', 'order', ignoreRecord: true)
@@ -43,13 +47,17 @@ class DesignTypeResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('type')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('order')
+                TextColumn::make('order')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\IconColumn::make('isPro')
-                    ->boolean(),
-                Tables\Columns\IconColumn::make('status')
-                    ->boolean(),
+
+                IconColumn::make('isPro')
+                    ->boolean()
+                    ->sortable(),
+
+                IconColumn::make('status')
+                    ->boolean()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -64,11 +72,6 @@ class DesignTypeResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 
@@ -83,8 +86,6 @@ class DesignTypeResource extends Resource
     {
         return [
             'index' => Pages\ListDesignTypes::route('/'),
-            'create' => Pages\CreateDesignType::route('/create'),
-            'edit' => Pages\EditDesignType::route('/{record}/edit'),
         ];
     }
 }

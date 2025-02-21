@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Interfaces\AuthInterface;
 use App\Services\BulkSmsService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -57,8 +58,22 @@ class UserController extends Controller
                 'errors' => $validator->errors()
             ], 200);
         }
+
+        // Check OTP resend cooldown
+        $cacheKey = 'otp_resend_' . $request->msisdn;
+        if (Cache::has($cacheKey)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'You can request OTP again after 4 minutes.'
+            ], 429);
+        }
+
+        // Set cooldown period (4 minutes)
+        Cache::put($cacheKey, true, now()->addMinutes(4));
+
         return $this->authRepo->otpRequest($request->all());
     }
+
 
     public function otpVerify(Request $request)
     {

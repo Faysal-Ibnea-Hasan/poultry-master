@@ -126,7 +126,9 @@ class AuthRepository implements AuthInterface
 
     private function checkIfUserExists(string $msisdn): bool
     {
-        return User::where('phone', $msisdn)->exists();
+        return User::where('phone', $msisdn)
+            ->whereNotNull('password')
+            ->exists();
     }
 
     public function getCountryCode(string $region)

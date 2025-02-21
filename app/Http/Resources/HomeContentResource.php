@@ -16,7 +16,7 @@ class HomeContentResource extends JsonResource
     {
 
         return [
-            'menu' => $this->groupBy(fn($item) => $item->designType->type ?? 'Unknown')->map(function ($items, $designType) {
+            'contents' => $this->groupBy(fn($item) => $item->designType->type ?? 'Unknown')->map(function ($items, $designType) {
                 return [
                     'total' => count($items),
                     'sort' => $items->min(fn($item) => $item->designType->order ?? PHP_INT_MAX),
@@ -24,10 +24,15 @@ class HomeContentResource extends JsonResource
                     'isVisible' => true,
                     'menuList' => $items->map(function ($item) {
                         return [
+                            'menu_id' => $item->id,
                             'sort' => $item->order,
                             'title' => $item->name,
                             'dynamicTitle' => $item->title ?? "",
-                            'image' => "//" . $item->image, // Modify as needed
+                            'image' => asset('uploads/' . $item->image),
+                            'sub_title' => $item->sub_title,
+                            'content_type' => $item->content_type,
+                            'link' => $item->link,
+                            'action' => $item->action,
                             'isVisible' => $item->status == 1,
                             'isPro' => $item->isPro == 1
                         ];

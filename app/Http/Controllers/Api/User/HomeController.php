@@ -20,7 +20,7 @@ class HomeController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Data was found successfully',
-            'contents' => new HomeContentResource($menu)
+            'data' => new HomeContentResource($menu)
         ], 200);
     }
 }

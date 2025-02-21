@@ -12,6 +12,7 @@ class HomeRepository implements HomeInterface
         return Option::select('options.*')
             ->join('design_types', 'options.design_type_id', '=', 'design_types.id')
             ->where('options.status', 1)
+            ->where('design_types.status', 1)
             ->orderBy('design_types.order', 'asc')
             ->orderBy('options.order', 'asc')
             ->with('designType')
