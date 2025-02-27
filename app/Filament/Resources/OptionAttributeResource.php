@@ -75,7 +75,6 @@ class OptionAttributeResource extends Resource
             'index' => Pages\ListOptionAttributes::route('/'),
             'create' => Pages\CreateOptionAttribute::route('/create'),
             'view' => Pages\ViewOptionAttribute::route('/{record}'),
-            'edit' => Pages\EditOptionAttribute::route('/{record}/edit'),
         ];
     }
 }

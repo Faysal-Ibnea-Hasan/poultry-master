@@ -16,11 +16,14 @@ class HomeContentResource extends JsonResource
     {
 
         return [
-            'contents' => $this->groupBy(fn($item) => $item->designType->type ?? 'Unknown')->map(function ($items, $designType) {
+            'contents' => $this->groupBy(fn($item) => $item->patches->first()->code ?? 'Unknown') // Group by patch code
+            ->map(function ($items, $patchCode) { // $patchCode is the key for each group
                 return [
                     'total' => count($items),
-                    'sort' => $items->min(fn($item) => $item->designType->order ?? PHP_INT_MAX),
-                    'design' => ucfirst($designType),
+                    'patch_code' => $patchCode, // Use the group key as patch code
+                    'patch_title' => $items->first()->patches->first()->title ?? 'Unknown', // Get title from the first patch in the group
+                    'sort' => $items->min(fn($item) => $item->patches->first()->order ?? PHP_INT_MAX),
+                    'design' => ucfirst($items->first()->designType->type ?? 'Unknown'),
                     'isVisible' => true,
                     'menuList' => $items->map(function ($item) {
                         return [
@@ -40,6 +43,7 @@ class HomeContentResource extends JsonResource
                 ];
             })->values()->toArray()
         ];
+
     }
 
 }

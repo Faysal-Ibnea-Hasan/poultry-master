@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Option extends Model
 {
+
     protected $fillable = [
         'name',
         'image',
@@ -34,6 +35,9 @@ class Option extends Model
     {
         return $this->belongsTo(DesignType::class, 'design_type_id');
     }
-
+    public function getPatchesAttribute()
+    {
+        return Patch::whereJsonContains('option_ids', (string)$this->id)->get();
+    }
 
 }

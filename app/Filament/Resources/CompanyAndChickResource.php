@@ -52,18 +52,17 @@ class CompanyAndChickResource extends Resource
                 ]),
 
                 Repeater::make('breeds')
-                    ->label('Breeds')
-//                    ->relationship('breeds') // If you have a relation
+                    ->label('🐾 Breeds')
                     ->schema([
                         Select::make('breed_id')
-                            ->label('Breed')
+                            ->label('🦆 Breed')
                             ->required()
                             ->searchable()
                             ->options(fn() => Breed::pluck('name', 'id')),
                     ])
                     ->addable(true)
-                    ->reorderable(true),
-//                    ->collapsible(),
+                    ->reorderable(true)
+                    ->columnSpanFull(),
             ]);
     }
 
