@@ -10,12 +10,9 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('company_and_chicks', function (Blueprint $table) {
+        Schema::create('chick_types', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('option_id');
-            $table->unsignedInteger('company_id');
-            $table->unsignedInteger('breed_id');
-            $table->unsignedInteger('chick_type_id');
+            $table->string('name');
             $table->timestamps();
         });
     }
@@ -25,6 +22,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('company_and_chicks');
+        Schema::dropIfExists('chick_types');
     }
 };

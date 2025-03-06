@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Api\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserDetailsResource;
 use App\Interfaces\AuthInterface;
 use App\Services\BulkSmsService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -24,12 +26,13 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'msisdn' => 'required|max:15',
             'pin' => 'required|string',
+            'device_id' => 'required|string',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'errors' => $validator->errors()
+                'message' => $validator->errors()
             ], 200);
         }
 
@@ -96,16 +99,18 @@ class UserController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'pin' => 'required|string',
+            'device_name' => 'required|string',
+            'device_id' => 'required|string',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'errors' => $validator->errors()
+                'message' => $validator->errors()
             ], 200);
         }
 
-        return $this->authRepo->setupPin($request->pin);
+        return $this->authRepo->setupPin($request->pin,$request->device_name,$request->device_id);
     }
 
     public function getValidRegions()
@@ -138,4 +143,40 @@ class UserController extends Controller
             'country_code' => $this->authRepo->getCountryCode($request->region)
         ], 200);
     }
+
+    public function updateProfile(Request $request)
+    {
+        $user = auth::user();
+        if ($request->isMethod('get')) {
+            return response()->json([
+                'status' => true,
+                'message' => 'User data fetched successfully.',
+                'data' => new UserDetailsResource($user)
+            ]);
+        }
+
+        // Validation
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'nullable|email|unique:users,email,' . $user->id,
+            'address' => 'nullable|string|max:255',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors(),
+                'data' => []
+            ], 422);
+        }
+
+        // Updating user profile
+        $user->update($request->only(['name', 'email', 'address']));
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Profile updated successfully',
+            'data' => []
+        ], 200);
+    }
+
 }

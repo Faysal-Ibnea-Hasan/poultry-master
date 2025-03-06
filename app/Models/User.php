@@ -33,6 +33,8 @@ class User extends Authenticatable implements FilamentUser
         "otp",
         "status",
         "last_login",
+        "device_name",
+        "device_id"
     ];
     protected $hidden = [
         'password',

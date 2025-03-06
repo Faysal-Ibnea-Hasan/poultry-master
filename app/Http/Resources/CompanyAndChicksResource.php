@@ -26,10 +26,10 @@ class CompanyAndChicksResource extends JsonResource
     public static function collection($resource)
     {
         return parent::collection($resource)
-            ->groupBy('type')
+            ->groupBy('chickType.name')
             ->map(fn($items, $type) => [
                 'name' => $type,
-                'value' => json_encode($items->pluck('breed.name')->implode("\n"))
+                'value' => $items->pluck('breed.name')->implode(",")
             ])
             ->values()
             ->toArray();

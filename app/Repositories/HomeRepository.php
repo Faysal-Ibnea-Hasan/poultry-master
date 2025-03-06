@@ -5,30 +5,36 @@ namespace App\Repositories;
 use App\Interfaces\HomeInterface;
 use App\Models\Company;
 use App\Models\Option;
+use App\Models\Patch;
 
 class HomeRepository implements HomeInterface
 {
     public function getMenu()
     {
-        $options = Option::select('options.*')
-            ->join('design_types', 'options.design_type_id', '=', 'design_types.id')
-            ->where('options.status', 1)
-            ->where('design_types.status', 1)
-            ->orderBy('design_types.order', 'asc')
-            ->orderBy('options.order', 'asc')
-            ->with('designType')
-            ->get()
-            ->sortBy(function ($option) {
-                // Access patches through the dynamic attribute
-                $patches = $option->patches; // This will call the getPatchesAttribute method
-                // Sort by the first patch's order (if it exists)
-                return $patches->first()->order ?? PHP_INT_MAX; // Default to max int if no patches
-            });
+        return Patch::with([
+            'designType' => function ($query) {
+                $query->where('status', 1); // Ensure only active design types
+            },
+            'options' => function ($query) {
+                $query->where('status', 1)
+                    ->whereHas('designType', function ($q) {
+                        $q->where('status', 1); // Ensure option's design type is active
+                    })
+                    ->with('designType')
+                    ->orderBy('order', 'asc');
+            }
+        ])
+            ->where('status', 1)
+            ->whereHas('designType', function ($query) {
+                $query->where('status', 1); // Ensure patch's design type is active
+            })
+            ->orderBy('order', 'asc')
+            ->get();
     }
 
     public function getCompanies()
     {
-        $companies = Company::all();
+        return Company::all();
     }
 
 }

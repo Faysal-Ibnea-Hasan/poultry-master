@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\CompanyAndChickResource\Pages;
 use App\Filament\Resources\CompanyAndChickResource\RelationManagers;
 use App\Models\Breed;
+use App\Models\ChickType;
 use App\Models\Company;
 use App\Models\CompanyAndChick;
 use App\Models\Option;
@@ -42,13 +43,11 @@ class CompanyAndChickResource extends Resource
                         ->searchable()
                         ->options(fn() => Company::pluck('name', 'id')),
 
-                    Select::make('type')
+                    Select::make('chick_type_id')
                         ->label('Type')
                         ->required()
-                        ->options([
-                            'broiler' => 'Broiler',
-                            'layer' => 'Layer',
-                        ]),
+                        ->searchable()
+                        ->options(fn() => ChickType::pluck('name', 'id')),
                 ]),
 
                 Repeater::make('breeds')
@@ -86,7 +85,7 @@ class CompanyAndChickResource extends Resource
                     ->sortable()
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('type')
+                Tables\Columns\TextColumn::make('chickType.name')
                     ->label('Type')
                     ->sortable()
                     ->searchable(),

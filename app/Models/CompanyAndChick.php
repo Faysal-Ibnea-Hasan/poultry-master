@@ -10,7 +10,7 @@ class CompanyAndChick extends Model
         "option_id",
         "company_id",
         "breed_id",
-        "type"
+        "chick_type_id"
     ];
 
     public function company()
@@ -26,5 +26,10 @@ class CompanyAndChick extends Model
     public function option()
     {
         return $this->belongsTo(Option::class);
+    }
+
+    public function chickType()
+    {
+        return $this->belongsTo(ChickType::class);
     }
 }

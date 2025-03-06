@@ -16,7 +16,7 @@ class CreateCompanyAndChick extends CreateRecord
             return [
                 'option_id' => $data['option_id'],
                 'company_id' => $data['company_id'],
-                'type' => $data['type'],
+                'chick_type_id' => $data['chick_type_id'],
                 'breed_id' => $breed['breed_id'],
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -30,7 +30,7 @@ class CreateCompanyAndChick extends CreateRecord
         return CompanyAndChick::where([
             'option_id' => $data['option_id'],
             'company_id' => $data['company_id'],
-            'type' => $data['type'],
+            'chick_type_id' => $data['chick_type_id'],
         ])->firstOrNew();
     }
 

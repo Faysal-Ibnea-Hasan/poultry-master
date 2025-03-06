@@ -11,14 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('patches', function (Blueprint $table) {
+        Schema::create('option_patches', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('design_type_id');
-            $table->string('code')->unique();
-            $table->string('title')->nullable();
-            $table->string('content_type')->nullable();
-            $table->integer('order')->unique();
-            $table->boolean('status')->default(true);
+            $table->unsignedInteger('patch_id');
+            $table->unsignedInteger('option_id')->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('patches');
+        Schema::dropIfExists('option_patches');
     }
 };

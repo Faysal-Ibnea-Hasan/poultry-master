@@ -6,14 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class Patch extends Model
 {
-    protected $fillable = ['code', 'title', 'option_ids', 'order'];
-
-    protected $casts = [
-        'option_ids' => 'array', // Automatically converts JSON to an array
+    protected $fillable = [
+        "design_type_id",
+        "code",
+        "title",
+        "content_type",
+        "order",
+        "status",
     ];
 
-    public function getOptionsAttribute()
+    public function designType()
     {
-        return Option::whereIn('id', $this->option_ids)->get();
+        return $this->belongsTo(DesignType::class);
     }
+    public function options()
+    {
+        return $this->belongsToMany(Option::class, 'option_patches');
+    }
+
 }

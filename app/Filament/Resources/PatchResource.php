@@ -4,14 +4,17 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PatchResource\Pages;
 use App\Filament\Resources\PatchResource\RelationManagers;
-use App\Models\Option;
+use App\Models\DesignType;
 use App\Models\Patch;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PatchResource extends Resource
 {
@@ -23,42 +26,33 @@ class PatchResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\Select::make('design_type_id')
+                    ->options(fn() => DesignType::pluck('type', 'id'))
+                    ->label('Design Type')
+                    ->required(),
                 Forms\Components\TextInput::make('code')
                     ->label('Code')
-                    ->default(fn () => 'PATCH-' . strtoupper(uniqid())) // Auto-generate code
+                    ->default(function () {
+                        $lastPatch = \App\Models\Patch::latest('id')->first();
+                        $lastNumber = $lastPatch ? intval(substr($lastPatch->code, 2)) : 0;
+                        return 'P-' . str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+                    })
                     ->disabled()
                     ->dehydrated() // Still saves in the database
                     ->required(),
-
                 Forms\Components\TextInput::make('title')
-                    ->label('Title')
-                    ->maxLength(255),
-
-                Forms\Components\Select::make('option_ids')
-                    ->label('Menus')
-                    ->options(Option::pluck('name', 'id')) // Fetch all options
-                    ->multiple() // Allow selecting multiple options
-                    ->required()
-                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                        $recordId = $get('id'); // Get the current record's ID
-                        $existingPatch = Patch::whereJsonContains('option_ids', $state)
-                            ->where('id', '!=', $recordId) // Exclude the current record
-                            ->first();
-
-                        if ($existingPatch) {
-                            $set('option_ids', []); // Clear selection if already exists
-                            Notification::make()
-                                ->title('Error')
-                                ->body('One or more options are already linked to another code!')
-                                ->danger()
-                                ->send();
-                        }
-                    }),
-
+                    ->maxLength(255)
+                    ->default(null),
+                Forms\Components\TextInput::make('content_type')
+                    ->maxLength(255)
+                    ->default(null),
                 Forms\Components\TextInput::make('order')
-                    ->unique('patches','order',ignoreRecord: true)
+                    ->unique('patches', 'order', ignoreRecord: true)
                     ->label('Order')
-                    ->default(fn () => Patch::max('order') + 1) // Auto-increment order
+                    ->default(fn() => Patch::max('order') + 1) // Auto-increment order
+                    ->required(),
+                Forms\Components\Toggle::make('status')
+                    ->default(true)
                     ->required(),
             ]);
     }
@@ -67,17 +61,29 @@ class PatchResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('designType.type')
+                    ->numeric()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('code')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('title')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('option_count')
-                    ->label('Menu Count') // Change column label
-                    ->getStateUsing(fn (Patch $record) => count($record->option_ids ?? [])) // Count options
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('content_type')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('order')
                     ->numeric()
                     ->sortable(),
+                // ✅ Toggle for 'status' field
+                Tables\Columns\ToggleColumn::make('status')
+                    ->label('Status')
+                    ->onColor('success')
+                    ->sortable()
+                    ->afterStateUpdated(fn($record) => Notification::make()
+                        ->title('Status Updated')
+                        ->body("The status is now " . ($record->status ? 'Published' : 'Draft'))
+                        ->success()
+                        ->send()
+                    ),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -92,6 +98,12 @@ class PatchResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Action::make('assignPatch')
+                    ->label('Assign to Patch')
+                    ->icon('heroicon-s-plus-circle')
+                    ->url(fn($record) => OptionPatchResource::getUrl('create', [
+                        'patch_id' => $record->id,
+                    ])) // Pass design_type_id to create page
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

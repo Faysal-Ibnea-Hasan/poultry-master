@@ -85,7 +85,7 @@ class AuthRepository implements AuthInterface
         ], 200);
     }
 
-    public function setupPin(string $pin)
+    public function setupPin(string $pin,string $device_name,string $device_id)
     {
         $user = Auth::user();
         if (!$user) {
@@ -95,7 +95,11 @@ class AuthRepository implements AuthInterface
             ], 401);
         }
 
-        $user->update(['password' => Hash::make($pin)]);
+        $user->update([
+            'password' => Hash::make($pin),
+            'device_name' => $device_name,
+            'device_id' => $device_id
+        ]);
 
         return response()->json([
             'status' => true,
@@ -111,6 +115,12 @@ class AuthRepository implements AuthInterface
             return response()->json([
                 'status' => false,
                 'message' => 'Invalid credentials'
+            ], 200);
+        }
+        if ($user->device_id !== $data['device_id']){
+            return response()->json([
+                'status' => false,
+                'message' => 'You can\'t login twice with this device'
             ], 200);
         }
 

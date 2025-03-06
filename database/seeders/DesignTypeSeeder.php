@@ -18,7 +18,7 @@ class DesignTypeSeeder extends Seeder
         $designTypes = [
             [
                 'id' => 1,
-                'type' => 'Calculator',
+                'type' => 'Result',
                 'order' => 1,
                 'isPro' => 0,
                 'status' => 1,
@@ -52,6 +52,15 @@ class DesignTypeSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            [
+                'id' => 5,
+                'type' => 'Calculator',
+                'order' => 5,
+                'isPro' => 0,
+                'status' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
         ];
 
         // Insert the data into the design_types table

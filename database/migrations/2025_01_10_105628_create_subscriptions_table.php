@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -14,9 +13,12 @@ return new class extends Migration
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
             $table->string('plan_name');
+            $table->string('image')->nullable();
+            $table->string('type');
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
-            $table->decimal('price')->nullable();
+            $table->decimal('price', 15, 2)->nullable();
+            $table->decimal('discount_price', 15, 2)->nullable();
             $table->integer('status')->default(0)->comment('0 - inactive, 1 - active');
             $table->timestamps();
         });

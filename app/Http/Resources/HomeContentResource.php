@@ -14,36 +14,34 @@ class HomeContentResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-
         return [
-            'contents' => $this->groupBy(fn($item) => $item->patches->first()->code ?? 'Unknown') // Group by patch code
-            ->map(function ($items, $patchCode) { // $patchCode is the key for each group
-                return [
-                    'total' => count($items),
-                    'patch_code' => $patchCode, // Use the group key as patch code
-                    'patch_title' => $items->first()->patches->first()->title ?? 'Unknown', // Get title from the first patch in the group
-                    'sort' => $items->min(fn($item) => $item->patches->first()->order ?? PHP_INT_MAX),
-                    'design' => ucfirst($items->first()->designType->type ?? 'Unknown'),
-                    'isVisible' => true,
-                    'menuList' => $items->map(function ($item) {
-                        return [
-                            'menu_id' => $item->id,
-                            'sort' => $item->order,
-                            'title' => $item->name,
-                            'dynamicTitle' => $item->title ?? "",
-                            'image' => asset('uploads/' . $item->image),
-                            'sub_title' => $item->sub_title,
-                            'content_type' => $item->content_type,
-                            'link' => $item->link,
-                            'action' => $item->action,
-                            'isVisible' => $item->status == 1,
-                            'isPro' => $item->isPro == 1
-                        ];
-                    })->toArray()
-                ];
-            })->values()->toArray()
-        ];
 
+                'contents' => $this->resource->map(function ($patch) {
+                    return [
+                        'total' => $patch->options->count(),
+                        'sort' => $patch->order,
+                        'code' => $patch->code,
+                        'title' => $patch->title,
+                        'content_type' => $patch->content_type,
+                        'design' => ucfirst(optional($patch->designType)->type ?? 'Unknown'),
+                        'isVisible' => $patch->status == 1,
+                        'menuList' => $patch->options->map(function ($option) {
+                            return [
+                                'menu_id' => $option->id,
+                                'sort' => $option->order,
+                                'title' => $option->name,
+                                'dynamicTitle' => $option->title ?? '',
+                                'image' => asset('uploads/' . $option->image),
+                                'sub_title' => $option->sub_title,
+                                'content_type' => $option->content_type,
+                                'link' => $option->link,
+                                'action' => $option->action,
+                                'isVisible' => $option->status == 1,
+                                'isPro' => $option->isPro == 1
+                            ];
+                        })->toArray()
+                    ];
+                })->sortBy('sort')->values()->toArray()
+            ];
     }
-
 }

@@ -35,9 +35,9 @@ class Option extends Model
     {
         return $this->belongsTo(DesignType::class, 'design_type_id');
     }
-    public function getPatchesAttribute()
+    public function patches()
     {
-        return Patch::whereJsonContains('option_ids', (string)$this->id)->get();
+        return $this->belongsToMany(Patch::class, 'option_patches');
     }
 
 }

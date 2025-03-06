@@ -91,11 +91,10 @@ class OptionResource extends Resource
 
                     TextInput::make('order')
                         ->label('Order')
+                        ->unique(table: 'options', column: 'order', ignoreRecord: true)
                         ->numeric()
                         ->required()
-                        ->minValue(1)
-                        ->unique(table: 'options', column: 'order', ignoreRecord: true)
-                        ->placeholder('Enter an order number'),
+                        ->default(fn() => Option::max('order') + 1) // Auto-increment order
                 ]),
 
                 // 📌 Status Controls
@@ -111,13 +110,13 @@ class OptionResource extends Resource
     {
         return $infolist->schema(
             fn($record) => match ($record->design_type_id) {
-                1 => self::renderCalculatorInfo($record), // Assuming ID 1 is 'calculator'
+                1 => self::renderResultInfo($record), // Assuming ID 1 is 'Result'
                 2 => self::renderListInfo($record),       // Assuming ID 2 is 'list'
                 default => [], // Fallback for unknown types
             }
         );
     }
-    private static function renderCalculatorInfo($record)
+    private static function renderResultInfo($record)
     {
         return collect($record->results)
             ->groupBy(fn($result) => optional($result->breed)->name ?? 'Unknown Breed') // Group by Breed first

@@ -23,6 +23,8 @@ return new class extends Migration {
             $table->boolean('isAdmin')->nullable();
             $table->string('otp')->nullable();
             $table->boolean('status')->default(true);
+            $table->string('device_name')->nullable();
+            $table->string('device_id')->nullable();
             $table->timestamp('last_login')->nullable();
             $table->rememberToken();
             $table->timestamps();

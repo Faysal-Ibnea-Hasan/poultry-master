@@ -50,8 +50,8 @@ class OptionResultResource extends Resource
 //                    ->dehydrated()
 //                    ->visible(fn($get) => filled($get('design_type'))),
 //
-//                // Fields when design_type is 'calculator'
-//                Section::make('Calculator Fields')
+//                // Fields when design_type is 'Result'
+//                Section::make('Result Fields')
 //                    ->schema([
 //                        Select::make('breed_id')
 //                            ->label('Breed')
@@ -74,7 +74,7 @@ class OptionResultResource extends Resource
 //                            ->numeric()
 //                            ->default(null),
 //                    ])
-//                    ->visible(fn($get) => $get('design_type') === 'Calculator'), // Using type name instead of ID
+//                    ->visible(fn($get) => $get('design_type') === 'Result'), // Using type name instead of ID
 //
 //                // Fields when design_type is 'list'
 //                Section::make('List Fields')
@@ -138,9 +138,9 @@ class OptionResultResource extends Resource
                 ])
                     ->columnSpanFull(),
 
-                // Fields when design_type is 'calculator'
-                Section::make('Calculator Fields')
-                    ->description('Fill in the required details for calculator-based design.')
+                // Fields when design_type is 'Result'
+                Section::make('Result Fields')
+                    ->description('Fill in the required details for Result-based design.')
                     ->collapsible()
                     ->schema([
                         Grid::make(2)->schema([
@@ -172,7 +172,7 @@ class OptionResultResource extends Resource
                                 ->placeholder('Enter number of days'),
                         ]),
                     ])
-                    ->visible(fn($get) => $get('design_type') === 'Calculator'),
+                    ->visible(fn($get) => $get('design_type') === 'Result'),
 
                 // Fields when design_type is 'list'
                 Section::make('📋 List Fields')
