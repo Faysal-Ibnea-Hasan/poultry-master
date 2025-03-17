@@ -12,14 +12,13 @@ return new class extends Migration {
     {
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
-            $table->string('plan_name');
+            $table->string('plan_name'); // e.g., Monthly, Annual
             $table->string('image')->nullable();
-            $table->string('type');
-            $table->date('start_date')->nullable();
-            $table->date('end_date')->nullable();
-            $table->decimal('price', 15, 2)->nullable();
-            $table->decimal('discount_price', 15, 2)->nullable();
-            $table->integer('status')->default(0)->comment('0 - inactive, 1 - active');
+            $table->enum('type', ['monthly', 'annual', 'lifetime']); // More precise instead of string
+            $table->decimal('regular_price', 15, 2);
+            $table->decimal('offer_price', 15, 2);
+            $table->integer('duration_days'); // 30 for monthly, 365 for annual, null for lifetime
+            $table->boolean('status')->default(1)->comment('1 - active, 0 - inactive'); // Boolean instead of integer
             $table->timestamps();
         });
     }

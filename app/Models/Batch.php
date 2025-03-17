@@ -3,18 +3,18 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 class Batch extends Model
 {
     protected $fillable = [
-        'company_id',
-        'breed_id',
-        'category_id',
         'batch_number',
+        'chick_type_id',
+        'company_name',
         'quantity',
+        'cost_per_chick',
         'arrival_date',
         'initial_weight',
-        'cost_per_chick',
         'source_supplier',
         'shed_number',
         'status',
@@ -23,18 +23,26 @@ class Batch extends Model
         'notes',
     ];
 
-    public function company()
+    protected $casts = [
+        'arrival_date' => 'date:Y-m-d',
+    ];
+
+    public function setArrivalDateAttribute($value)
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        try {
+            $this->attributes['arrival_date'] = Carbon::createFromFormat('d-m-Y', $value)->format('Y-m-d');
+        } catch (\Exception $e) {
+            $this->attributes['arrival_date'] = null; // Set to null if invalid
+        }
     }
 
-    public function breed()
+    public function getArrivalDateAttribute($value)
     {
-        return $this->belongsTo(Breed::class, 'breed_id');
+        return Carbon::parse($value)->format('d-m-Y');
     }
 
-    public function category()
+    public function chickType()
     {
-        return $this->belongsTo(Category::class, 'category_id');
+        return $this->belongsTo(ChickType::class, 'chick_type_id');
     }
 }

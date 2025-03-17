@@ -20,7 +20,7 @@ class HomeRepository implements HomeInterface
                     ->whereHas('designType', function ($q) {
                         $q->where('status', 1); // Ensure option's design type is active
                     })
-                    ->with('designType')
+                    ->with(['designType','staticResult'])
                     ->orderBy('order', 'asc');
             }
         ])

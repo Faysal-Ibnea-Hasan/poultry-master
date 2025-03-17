@@ -18,7 +18,6 @@ class SubscriberResource extends Resource
     protected static ?string $model = Subscriber::class;
 
     protected static ?string $navigationIcon = 'heroicon-s-user-group';
-    protected static ?int $navigationSort = 16; // Position in the navigation bar (lower = higher priority)
 
     public static function form(Form $form): Form
     {
@@ -30,13 +29,15 @@ class SubscriberResource extends Resource
                 Forms\Components\TextInput::make('subscription_id')
                     ->required()
                     ->numeric(),
+                Forms\Components\DateTimePicker::make('start_date')
+                    ->required(),
+                Forms\Components\DateTimePicker::make('end_date')
+                    ->required(),
                 Forms\Components\TextInput::make('payment_status')
                     ->required(),
+                Forms\Components\Toggle::make('is_active')
+                    ->required(),
             ]);
-    }
-    public static function shouldRegisterNavigation(): bool // Hide or show in navigation
-    {
-        return false;
     }
 
     public static function table(Table $table): Table
@@ -49,7 +50,15 @@ class SubscriberResource extends Resource
                 Tables\Columns\TextColumn::make('subscription_id')
                     ->numeric()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('start_date')
+                    ->dateTime()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('end_date')
+                    ->dateTime()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('payment_status'),
+                Tables\Columns\IconColumn::make('is_active')
+                    ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -63,7 +72,6 @@ class SubscriberResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -85,7 +93,6 @@ class SubscriberResource extends Resource
         return [
             'index' => Pages\ListSubscribers::route('/'),
             'create' => Pages\CreateSubscriber::route('/create'),
-            'view' => Pages\ViewSubscriber::route('/{record}'),
             'edit' => Pages\EditSubscriber::route('/{record}/edit'),
         ];
     }

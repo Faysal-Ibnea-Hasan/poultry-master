@@ -35,9 +35,15 @@ class Option extends Model
     {
         return $this->belongsTo(DesignType::class, 'design_type_id');
     }
+
     public function patches()
     {
         return $this->belongsToMany(Patch::class, 'option_patches');
+    }
+
+    public function staticResult()
+    {
+        return $this->hasOne(OptionStaticResult::class, 'option_id');
     }
 
 }

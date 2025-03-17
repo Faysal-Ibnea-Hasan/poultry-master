@@ -17,7 +17,7 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-s-users';
 
     public static function form(Form $form): Form
     {
@@ -25,22 +25,30 @@ class UserResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->maxLength(255)
-                    ->default(null),
+                    ->nullable(),
                 Forms\Components\TextInput::make('email')
                     ->email()
-                    ->maxLength(255)
-                    ->default(null),
+                    ->nullable()
+                    ->maxLength(255),
                 Forms\Components\DateTimePicker::make('email_verified_at'),
                 Forms\Components\TextInput::make('password')
                     ->password()
                     ->maxLength(255)
-                    ->default(null),
+                    ->nullable()
+                    ->autocomplete(false)
+                    ->disabled(fn(string $operation): bool => $operation === 'edit'), // Disable on edit
                 Forms\Components\TextInput::make('role')
                     ->maxLength(255)
                     ->default(null),
                 Forms\Components\TextInput::make('phone')
                     ->tel()
                     ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('device_name')
+                    ->nullable()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('device_id')
+                    ->nullable()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('country_code')
                     ->required()
@@ -66,6 +74,9 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phone')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('device_name')
+                    ->label('Device')
                     ->searchable(),
                 Tables\Columns\IconColumn::make('isAdmin')
                     ->boolean(),

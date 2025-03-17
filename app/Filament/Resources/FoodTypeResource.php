@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ChickTypeResource\Pages;
-use App\Filament\Resources\ChickTypeResource\RelationManagers;
-use App\Models\ChickType;
+use App\Filament\Resources\FoodTypeResource\Pages;
+use App\Filament\Resources\FoodTypeResource\RelationManagers;
+use App\Models\FoodType;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,11 +13,11 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class ChickTypeResource extends Resource
+class FoodTypeResource extends Resource
 {
-    protected static ?string $model = ChickType::class;
+    protected static ?string $model = FoodType::class;
 
-    protected static ?string $navigationIcon = 'heroicon-s-list-bullet';
+    protected static ?string $navigationIcon = 'heroicon-s-archive-box';
 
     public static function form(Form $form): Form
     {
@@ -49,7 +49,6 @@ class ChickTypeResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -68,9 +67,9 @@ class ChickTypeResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListChickTypes::route('/'),
-            'create' => Pages\CreateChickType::route('/create'),
-            'edit' => Pages\EditChickType::route('/{record}/edit'),
+            'index' => Pages\ListFoodTypes::route('/'),
+            'create' => Pages\CreateFoodType::route('/create'),
+            'edit' => Pages\EditFoodType::route('/{record}/edit'),
         ];
     }
 }

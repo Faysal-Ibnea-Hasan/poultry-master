@@ -19,7 +19,7 @@ class DesignTypeResource extends Resource
 {
     protected static ?string $model = DesignType::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-s-paint-brush';
 
     public static function form(Form $form): Form
     {

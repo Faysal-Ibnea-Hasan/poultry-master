@@ -13,9 +13,12 @@ return new class extends Migration
     {
         Schema::create('subscribers', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('user_id');
-            $table->unsignedInteger('subscription_id');
-            $table->enum('payment_status',['paid','partial-paid','unpaid'])->default('unpaid')->comment('paid|partial-paid|unpaid');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('subscription_id')->constrained()->onDelete('cascade');
+            $table->dateTime('start_date'); // When the subscription starts
+            $table->dateTime('end_date'); // When the subscription ends
+            $table->enum('payment_status', ['paid', 'partial-paid', 'unpaid'])->default('unpaid');
+            $table->boolean('is_active')->default(1)->comment('1 - Active, 0 - Expired');
             $table->timestamps();
         });
     }

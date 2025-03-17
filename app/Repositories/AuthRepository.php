@@ -22,19 +22,32 @@ class AuthRepository implements AuthInterface
 
     public function otpRequest(array $data)
     {
-        if ($this->checkIfUserExists($data['msisdn'])) {
-            return response()->json([
-                'status' => false,
-                'message' => 'User already exists'
-            ], 200);
-        }
-
         $otp = rand(1000, 9999);
 
         DB::beginTransaction();
         try {
             $country_code = $this->getCountryCode($data['region']);
             $formatted_number = $this->formatPhoneNumber($data['msisdn'], $data['region']);
+            if ($this->checkIfUserExists($formatted_number)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User already exists'
+                ], 200);
+            }
+            if ($this->checkIfRequestExists($formatted_number)) {
+                $user = User::where('phone', $formatted_number)->first();
+                $user->otp = $otp;
+                $user->save();
+                if (!$this->bulkSmsService->sendSms($data['msisdn'], $otp)) {
+                    throw new \Exception('Failed to send OTP');
+                }
+                DB::commit();
+                return response()->json([
+                    'status' => true,
+                    'message' => 'OTP has been sent successfully',
+                    'msisdn' => $user->phone,
+                ]);
+            }
             $user = User::create([
                 'phone' => $formatted_number,
                 'country_code' => $country_code,
@@ -49,7 +62,7 @@ class AuthRepository implements AuthInterface
 
             return response()->json([
                 'status' => true,
-                'message' => 'OTP sent successfully',
+                'message' => 'OTP has been sent successfully',
                 'msisdn' => $user->phone,
             ], 200);
         } catch (\Exception $e) {
@@ -85,7 +98,7 @@ class AuthRepository implements AuthInterface
         ], 200);
     }
 
-    public function setupPin(string $pin,string $device_name,string $device_id)
+    public function setupPin(string $pin, string $device_name, string $device_id)
     {
         $user = Auth::user();
         if (!$user) {
@@ -117,10 +130,10 @@ class AuthRepository implements AuthInterface
                 'message' => 'Invalid credentials'
             ], 200);
         }
-        if ($user->device_id !== $data['device_id']){
+        if ($user->device_id !== $data['device_id'] || $user->device_id == null) {
             return response()->json([
                 'status' => false,
-                'message' => 'You can\'t login twice with this device'
+                'message' => 'You can\'t login with this device'
             ], 200);
         }
 
@@ -130,6 +143,7 @@ class AuthRepository implements AuthInterface
             'status' => true,
             'message' => 'Login successful',
             'token' => $token,
+            'user_name' => $user->name,
             'msisdn' => $user->phone
         ], 200);
     }
@@ -140,6 +154,15 @@ class AuthRepository implements AuthInterface
             ->whereNotNull('password')
             ->exists();
     }
+
+    private function checkIfRequestExists(string $msisdn): bool
+    {
+        return User::where('phone', $msisdn)
+            ->whereNull('password')
+            ->whereNotNull('otp')
+            ->exists();
+    }
+
 
     public function getCountryCode(string $region)
     {

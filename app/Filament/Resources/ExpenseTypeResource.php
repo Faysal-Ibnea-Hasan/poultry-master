@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ChickTypeResource\Pages;
-use App\Filament\Resources\ChickTypeResource\RelationManagers;
-use App\Models\ChickType;
+use App\Filament\Resources\ExpenseTypeResource\Pages;
+use App\Filament\Resources\ExpenseTypeResource\RelationManagers;
+use App\Models\ExpenseType;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,11 +13,11 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class ChickTypeResource extends Resource
+class ExpenseTypeResource extends Resource
 {
-    protected static ?string $model = ChickType::class;
+    protected static ?string $model = ExpenseType::class;
 
-    protected static ?string $navigationIcon = 'heroicon-s-list-bullet';
+    protected static ?string $navigationIcon = 'heroicon-s-currency-dollar';
 
     public static function form(Form $form): Form
     {
@@ -26,6 +26,12 @@ class ChickTypeResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+
+                Forms\Components\Select::make('type')
+                    ->options(\App\Enum\ExpenseType::labels()) // Fetch enum labels dynamically
+                    ->required()
+                    ->searchable() // Allows searching in the dropdown
+                    ->preload(), // Preloads options for better performance
             ]);
     }
 
@@ -34,6 +40,8 @@ class ChickTypeResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('type')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -68,9 +76,9 @@ class ChickTypeResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListChickTypes::route('/'),
-            'create' => Pages\CreateChickType::route('/create'),
-            'edit' => Pages\EditChickType::route('/{record}/edit'),
+            'index' => Pages\ListExpenseTypes::route('/'),
+            'create' => Pages\CreateExpenseType::route('/create'),
+            'edit' => Pages\EditExpenseType::route('/{record}/edit'),
         ];
     }
 }

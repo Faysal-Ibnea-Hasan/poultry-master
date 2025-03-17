@@ -11,6 +11,7 @@ use App\Models\Option;
 use App\Models\OptionAttribute;
 use App\Models\OptionResult;
 use Filament\Forms\Components\Card;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
@@ -121,8 +122,7 @@ class OptionResultResource extends Resource
                         ->searchable()
                         ->options(fn() => Option::pluck('name', 'id'))
                         ->reactive()
-                        ->afterStateUpdated(fn($state, callable $set) =>
-                        $set('design_type', Option::find($state)?->designType?->type)
+                        ->afterStateUpdated(fn($state, callable $set) => $set('design_type', Option::find($state)?->designType?->type)
                         ),
 
                     TextInput::make('design_type')
@@ -131,8 +131,7 @@ class OptionResultResource extends Resource
                         ->default(fn($get) => Option::find($get('option_id'))?->designType?->type)
                         ->dehydrated()
                         ->visible(fn($get) => filled($get('design_type')))
-                        ->afterStateHydrated(fn($state, callable $set, $record) =>
-                        $set('design_type', $record?->option?->designType?->type)
+                        ->afterStateHydrated(fn($state, callable $set, $record) => $set('design_type', $record?->option?->designType?->type)
                         )
                         ->extraAttributes(['class' => 'text-blue-600 font-semibold']),
                 ])
@@ -211,11 +210,42 @@ class OptionResultResource extends Resource
                             ->columnSpanFull(),
                     ])
                     ->visible(fn($get) => $get('design_type') === 'List'),
+                // Fields when design_type is 'static'
+                Section::make('📋 Static Fields')
+                    ->description('Provide details for static design.')
+                    ->collapsible()
+                    ->schema([
+                        Grid::make(2)->schema([
+                            Select::make('option_id')
+                                ->label('📋 Menu')
+                                ->options(fn() => Option::pluck('name', 'id'))
+                                ->searchable()
+                                ->required()
+                                ->placeholder('Select a menu'),
+
+                            TextInput::make('title')
+                                ->label('📝 Title')
+                                ->maxLength(255)
+                                ->default(null),
+                        ]),
+
+                        TextInput::make('sub_title')
+                            ->label('📌 Subtitle')
+                            ->maxLength(255)
+                            ->default(null)
+                            ->columnSpanFull(),
+
+                        FileUpload::make('file')
+                            ->label('📎 File Upload')
+                            ->disk('public')
+                            ->visibility('public')
+                            ->nullable()
+                            ->columnSpanFull(),
+                    ])
+                    ->visible(fn($get) => $get('design_type') === 'Static'),
             ])
             ->columns(2); // Makes the form layout more structured
     }
-
-
 
 
     public static function table(Table $table): Table

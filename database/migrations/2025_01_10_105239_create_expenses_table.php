@@ -15,8 +15,11 @@ return new class extends Migration {
             $table->unsignedInteger('company_id')->nullable();
             $table->unsignedInteger('batch_id');
             $table->date('date');
-            $table->string('type')->comment('medicine|transport|labour|etc');
-            $table->decimal('amount', 10, 2);
+            $table->unsignedInteger('expense_type');
+            $table->decimal('amount', 15, 2)->nullable();
+            $table->integer('number_of_sack')->nullable();
+            $table->decimal('cost_per_sack', 15, 2)->nullable();
+            $table->unsignedInteger('food_type')->nullable();
             $table->text('description')->nullable();
             $table->string('payment_status')->nullable();
             $table->string('payment_method')->nullable();

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\OptionResultResource\Pages;
 use App\Filament\Resources\OptionResultResource;
 use App\Models\CompanyAndChick;
 use App\Models\OptionResult;
+use App\Models\OptionStaticResult;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\Log;
@@ -33,6 +34,13 @@ class CreateOptionResult extends CreateRecord
 
             // Return the last created record (or modify if necessary)
             return CompanyAndChick::latest()->first();
+        } elseif ($data['design_type'] === 'Static') {
+            return OptionStaticResult::create([
+                'option_id' => $data['option_id'],
+                'title' => $data['title'] ?? null,
+                'sub_title' => $data['sub_title'] ?? null,
+                'file' => $data['file'] ?? null,
+            ]);
         }
 
         return OptionResult::create($data);

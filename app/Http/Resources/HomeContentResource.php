@@ -32,6 +32,13 @@ class HomeContentResource extends JsonResource
                                 'title' => $option->name,
                                 'dynamicTitle' => $option->title ?? '',
                                 'image' => asset('uploads/' . $option->image),
+                                'result_image' => ($option->staticResult && in_array(pathinfo($option->staticResult->file, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png', 'gif', 'webp']))
+                                    ? asset('uploads/' . $option->staticResult->file)
+                                    : null,
+
+                                'file' => ($option->staticResult && pathinfo($option->staticResult->file, PATHINFO_EXTENSION) === 'pdf')
+                                    ? asset('uploads/' . $option->staticResult->file)
+                                    : null,
                                 'sub_title' => $option->sub_title,
                                 'content_type' => $option->content_type,
                                 'link' => $option->link,

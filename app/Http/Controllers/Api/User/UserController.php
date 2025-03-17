@@ -32,7 +32,7 @@ class UserController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'message' => $validator->errors()
+                'message' => 'Validation error',
             ], 200);
         }
 
@@ -110,7 +110,7 @@ class UserController extends Controller
             ], 200);
         }
 
-        return $this->authRepo->setupPin($request->pin,$request->device_name,$request->device_id);
+        return $this->authRepo->setupPin($request->pin, $request->device_name, $request->device_id);
     }
 
     public function getValidRegions()
@@ -178,5 +178,25 @@ class UserController extends Controller
             'data' => []
         ], 200);
     }
+
+    public function logout(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user) {
+            // Revoke current access token
+            $request->user()->currentAccessToken()->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'User logged out successfully.',
+            ]);
+        }
+        return response()->json([
+            'status' => false,
+            'message' => 'You are not logged in.',
+        ], 401);
+    }
+
 
 }

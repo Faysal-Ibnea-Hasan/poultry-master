@@ -21,6 +21,7 @@ return new class extends Migration {
             $table->string('country_code', 10); // E.g., +1, +91
             $table->text('address')->nullable();
             $table->boolean('isAdmin')->nullable();
+            $table->boolean('isPro')->nullable();
             $table->string('otp')->nullable();
             $table->boolean('status')->default(true);
             $table->string('device_name')->nullable();
