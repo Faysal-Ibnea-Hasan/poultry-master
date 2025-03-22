@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\Management\BatchManagementController;
+use App\Http\Controllers\Api\Management\DeadChickenController;
 use App\Http\Controllers\Api\Management\ExpenseController;
+use App\Http\Controllers\Api\Management\SellController;
 use App\Http\Controllers\Api\User\HomeController;
 use App\Http\Controllers\Api\User\MenuController;
 use App\Http\Controllers\Api\User\SubscriptionController;
@@ -32,20 +34,25 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('get-chick-types', [BatchManagementController::class, 'chickTypes']);
         Route::get('get-batch-dropdown', [BatchManagementController::class, 'batchDropdown']);
         Route::get('get-expense-types', [ExpenseController::class, 'expenseTypes']);
-        Route::get('get-food-types', [ExpenseController::class, 'foodTypes']);
+        Route::get('get-feed-types', [ExpenseController::class, 'foodTypes']);
     });
     Route::group(['prefix' => 'profile/'], function () {
         Route::match(['get', 'post'], 'update', [UserController::class, 'updateProfile']);
     });
     Route::group(['prefix' => 'manager/'], function () {
-        Route::post('batches', [BatchManagementController::class, 'batches']);
-        Route::post('manage-batch', [BatchManagementController::class, 'createOrUpdateBatch']);
+        Route::match(['get', 'post'], 'batches', [BatchManagementController::class, 'batches']);
         Route::post('add-to-old-batch', [BatchManagementController::class, 'addBatchToOLd']);
-        Route::post('delete-batch', [BatchManagementController::class, 'deleteBatch']);
+        Route::get('batch-overview', [BatchManagementController::class, 'batch_wise_all_data']);
+        Route::post('delete-batch/{id}', [BatchManagementController::class, 'deleteBatch']);
 
-        Route::post('expenses', [ExpenseController::class, 'expenses']);
-        Route::post('manage-expense', [ExpenseController::class, 'createOrUpdateExpense']);
-        Route::post('delete-expense', [ExpenseController::class, 'deleteExpense']);
+        Route::match(['get', 'post'], 'expenses', [ExpenseController::class, 'expenses']);
+        Route::post('delete-expense/{id}', [ExpenseController::class, 'deleteExpense']);
+
+        Route::match(['get', 'post'], 'dead-chickens', [DeadChickenController::class, 'deadChickens']);
+        Route::post('delete-dead-chicken/{id}', [DeadChickenController::class, 'deleteDeadChickenRecord']);
+
+        Route::match(['get', 'post'], 'sells', [SellController::class, 'sells']);
+        Route::post('delete-sell/{id}', [SellController::class, 'deleteSell']);
 
     });
     Route::group(['prefix' => 'subscription/'], function () {

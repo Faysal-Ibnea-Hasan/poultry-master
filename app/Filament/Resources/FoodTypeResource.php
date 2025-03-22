@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class FoodTypeResource extends Resource
 {
     protected static ?string $model = FoodType::class;
+    protected static ?string $navigationLabel = 'Feed Types';
+    protected static ?string $breadcrumb = 'Feed Types';
 
     protected static ?string $navigationIcon = 'heroicon-s-archive-box';
 
@@ -49,6 +51,7 @@ class FoodTypeResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

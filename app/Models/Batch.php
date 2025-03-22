@@ -9,6 +9,7 @@ class Batch extends Model
 {
     protected $fillable = [
         'batch_number',
+        'created_by',
         'chick_type_id',
         'company_name',
         'quantity',
@@ -44,5 +45,20 @@ class Batch extends Model
     public function chickType()
     {
         return $this->belongsTo(ChickType::class, 'chick_type_id');
+    }
+
+    public function deadChickens()
+    {
+        return $this->hasMany(DeadChicken::class, 'batch_id');
+    }
+
+    public function expenses()
+    {
+        return $this->hasMany(Expense::class);
+    }
+
+    public function sells()
+    {
+        return $this->hasMany(Sell::class);
     }
 }
