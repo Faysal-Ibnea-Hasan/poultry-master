@@ -35,10 +35,11 @@ class SellController extends Controller
                 'customer_name' => 'nullable|string|max:255',
                 'sell_type' => 'nullable|string',
                 'sell_description' => 'nullable|string|max:1000',
+                'amount' => 'nullable|string',
                 'quantity' => 'nullable|numeric|min:0',
                 'unit_price' => 'nullable|integer|min:0',
                 'total_weight' => 'nullable|integer|min:0',
-                'date' => 'required|date|date_format:d-m-Y',
+                'date' => 'required|date',
             ]);
             if ($validator->fails()) {
                 return response()->json([
@@ -47,8 +48,13 @@ class SellController extends Controller
                     'data' => []
                 ]);
             }
-            $amount = $request->quantity * $request->unit_price;
-            $request['amount'] = $amount;
+            if (isset($request->total_weight) && isset($request->unit_price)) {
+                $amount = $request->total_weight * $request->unit_price;
+                $request['amount'] = $amount;
+            } else {
+                $request['amount'] = $request->amount;
+            }
+
             // Check if it's an update (e.g., if batch_id is provided)
             if ($request->has('id') && !empty($request->id)) {
                 return $this->management->update_sell($request->all());

@@ -15,9 +15,9 @@ class ExpenseTypeResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'type' => $this->type
+            'id' => (string)$this->id,
+            'name' => (string)$this->name,
+            'type' => (string)$this->type
         ];
     }
 }

@@ -47,7 +47,7 @@ class BatchManagementController extends Controller
                 'company_name' => 'nullable|string|max:255',
                 'quantity' => 'nullable|integer|min:1',
                 'cost_per_chick' => 'nullable|numeric|min:0',
-                'arrival_date' => 'nullable|date|date_format:d-m-Y',
+                'arrival_date' => 'nullable|date',
             ]);
             if ($validator->fails()) {
                 return response()->json([

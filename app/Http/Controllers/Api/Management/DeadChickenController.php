@@ -34,7 +34,7 @@ class DeadChickenController extends Controller
                 'id' => 'nullable|exists:dead_chickens,id',
                 'batch_id' => 'required|exists:batches,id',
                 'quantity' => 'required|numeric|min:0',
-                'date' => 'required|date|date_format:d-m-Y',
+                'date' => 'required|date',
                 'reason' => 'nullable|string'
             ]);
             if ($validator->fails()) {

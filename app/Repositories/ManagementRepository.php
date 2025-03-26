@@ -8,12 +8,14 @@ use App\Http\Resources\BatchDropdownResource;
 use App\Http\Resources\BatchListResource;
 use App\Http\Resources\BatchWiseDataListResource;
 use App\Http\Resources\BatchWiseDetailsResource;
+use App\Http\Resources\ChickTypeResource;
 use App\Http\Resources\DeadChickenListResource;
 use App\Http\Resources\ExpenseListResource;
 use App\Http\Resources\ExpenseTypeResource;
 use App\Http\Resources\FeedExpenseListResource;
 use App\Http\Resources\FoodTypeResource;
 use App\Http\Resources\SellListResource;
+use App\Http\Resources\SellSummaryResource;
 use App\Interfaces\ManagementInterface;
 use App\Models\Batch;
 use App\Models\ChickType;
@@ -63,7 +65,7 @@ class ManagementRepository implements ManagementInterface
         return response()->json([
             'status' => true,
             'message' => 'Data fetched successfully',
-            'data' => $chick_type
+            'data' => ChickTypeResource::collection($chick_type)
         ]);
     }
 
@@ -235,7 +237,7 @@ class ManagementRepository implements ManagementInterface
 
     public function batch_wise_details(int $batch_id)
     {
-        $batch = Batch::where('id',$batch_id)->with(['chickType','deadChickens','expenses','sells'])->first();
+        $batch = Batch::where('id', $batch_id)->with(['chickType', 'deadChickens', 'expenses', 'sells'])->first();
         if ($batch) {
             return response()->json([
                 'status' => true,
@@ -293,8 +295,12 @@ class ManagementRepository implements ManagementInterface
             return response()->json([
                 'status' => true,
                 'message' => 'Data fetched successfully',
-                'total_sack' => $expenses->sum('number_of_sack'),
-                'total_sack_feed_wise' => $expenses->groupBy('foodType.name')->map(fn($group) => $group->sum('number_of_sack')),
+                'total_sack' => (string)$expenses->sum('number_of_sack'),
+                'total_amount' => (string)$expenses->sum('amount'),
+                'total_sack_feed_wise' => $expenses->groupBy('foodType.name')->map(fn($group, $key) => [
+                    'label' => $key,
+                    'value' => (string)$group->sum('number_of_sack')
+                ])->values(),
                 'data' => FeedExpenseListResource::collection($expenses)
             ]);
         } else {
@@ -393,8 +399,8 @@ class ManagementRepository implements ManagementInterface
             return response()->json([
                 'status' => true,
                 'message' => 'Data fetched successfully',
-                'total_sack' => $expense->sum('number_of_sack'),
-                'total_amount' => $expense->sum('amount'),
+                'total_sack' => (string)$expense->sum('number_of_sack'),
+                'total_amount' => (string)$expense->sum('amount'),
                 'data' => ExpenseListResource::collection($expense)
             ]);
         } else {
@@ -546,16 +552,15 @@ class ManagementRepository implements ManagementInterface
                     'data' => []
                 ]);
             }
-            $sell = Sell::with(['batch', 'sellLine'])
-                ->whereHas('batch', function ($query) {
-                    $query->where('created_by', $this->user->id);
-                })
-                ->where('batch_id', $batch_id)
+            $sell = SellLine::with('sell.batch')
+                ->whereHas('sell.batch', fn($q) => $q->where('id', $batch_id))
                 ->latest()
                 ->get();
+
             return response()->json([
                 'status' => true,
                 'message' => 'Data fetched successfully',
+                'summary' => new SellSummaryResource($sell),
                 'data' => SellListResource::collection($sell)
             ]);
         } else {

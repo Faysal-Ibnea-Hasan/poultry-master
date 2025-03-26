@@ -15,12 +15,12 @@ class DeadChickenListResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'batch_id' => $this->batch_id,
-            'batch_number' => $this->batch?->batch_number,
-            'quantity' => $this->quantity,
-            'date' => $this->date,
-            'reason' => $this->reason
+            'id' => (string)$this->id,
+            'batch_id' => (string)$this->batch_id,
+            'batch_number' => (string)$this->batch?->batch_number,
+            'quantity' => (string)$this->quantity,
+            'date' => (string)$this->date,
+            'reason' => (string)$this->reason
         ];
     }
 }

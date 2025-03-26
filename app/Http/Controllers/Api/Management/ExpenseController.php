@@ -52,7 +52,7 @@ class ExpenseController extends Controller
                 'number_of_sack' => 'nullable|integer|min:0',
                 'cost_per_sack' => 'nullable|integer|min:0',
                 'food_type' => 'nullable|integer|exists:food_types,id',
-                'date' => 'required|date|date_format:d-m-Y',
+                'date' => 'required|date',
             ]);
             if ($validator->fails()) {
                 return response()->json([

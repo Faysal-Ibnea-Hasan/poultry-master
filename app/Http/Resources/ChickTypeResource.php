@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class BatchDropdownResource extends JsonResource
+class ChickTypeResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,9 +15,8 @@ class BatchDropdownResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => (string)$this->id,
-            'value' => (string)$this->id,
-            'label' => (string)$this->batch_number
+            "id" => (string)$this->id,
+            "name" => (string)$this->name,
         ];
     }
 }
