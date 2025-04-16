@@ -8,6 +8,7 @@ class SellLine extends Model
 {
     protected $fillable = [
         'sell_id',
+        'sell_description',
         'product_type',
         'quantity',
         'unit_price',

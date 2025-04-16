@@ -237,7 +237,7 @@ class ManagementRepository implements ManagementInterface
 
     public function batch_wise_details(int $batch_id)
     {
-        $batch = Batch::where('id', $batch_id)->with(['chickType', 'deadChickens', 'expenses', 'sells'])->first();
+        $batch = Batch::where('id', $batch_id)->with(['chickType', 'deadChickens', 'expenses.expenseType', 'sells.sellLine'])->first();
         if ($batch) {
             return response()->json([
                 'status' => true,
@@ -455,7 +455,7 @@ class ManagementRepository implements ManagementInterface
             $sell = Sell::create([
                 'batch_id' => $data['batch_id'],
                 'customer_name' => $data['customer_name'] ?? null,
-                'sale_date' => $data['date']
+                'sale_date' => $data['sale_date']
             ]);
             if ($sell) {
                 SellLine::create([
@@ -474,7 +474,6 @@ class ManagementRepository implements ManagementInterface
             return response()->json([
                 'status' => true,
                 'message' => 'Sell created successfully!',
-                'data' => new SellListResource($sell)
             ]);
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -503,7 +502,7 @@ class ManagementRepository implements ManagementInterface
                 $sell->update([
                     'batch_id' => $data['batch_id'],
                     'customer_name' => $data['customer_name'] ?? null,
-                    'sale_date' => $data['date']
+                    'sale_date' => $data['sale_date']
                 ]);
                 $sell_line = SellLine::find($sell->id);
                 if ($sell_line) {
@@ -523,7 +522,6 @@ class ManagementRepository implements ManagementInterface
                 return response()->json([
                     'status' => true,
                     'message' => 'Sell updated successfully!',
-                    'data' => new SellListResource($sell)
                 ]);
             } else {
                 return response()->json([

@@ -36,7 +36,7 @@ class UserResource extends Resource
                     ->maxLength(255)
                     ->nullable()
                     ->autocomplete(false)
-                    ->disabled(fn(string $operation): bool => $operation === 'edit'), // Disable on edit
+                    ->hidden(fn(string $operation): bool => $operation === 'edit'), // Disable on edit
                 Forms\Components\TextInput::make('role')
                     ->maxLength(255)
                     ->default(null),

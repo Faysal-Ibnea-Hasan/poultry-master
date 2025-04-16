@@ -39,13 +39,13 @@ class SellController extends Controller
                 'quantity' => 'nullable|numeric|min:0',
                 'unit_price' => 'nullable|integer|min:0',
                 'total_weight' => 'nullable|integer|min:0',
-                'date' => 'required|date',
+                'sale_date' => 'required|date',
             ]);
             if ($validator->fails()) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Validation failed',
-                    'data' => []
+                    'data' => $validator->errors()
                 ]);
             }
             if (isset($request->total_weight) && isset($request->unit_price)) {
