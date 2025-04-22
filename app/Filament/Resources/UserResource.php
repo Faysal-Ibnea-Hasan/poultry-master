@@ -50,17 +50,24 @@ class UserResource extends Resource
                 Forms\Components\TextInput::make('device_id')
                     ->nullable()
                     ->maxLength(255),
+                Forms\Components\Toggle::make('device_id_reset')
+                    ->label('Reset device iD'),
                 Forms\Components\TextInput::make('country_code')
                     ->required()
                     ->maxLength(10),
                 Forms\Components\Textarea::make('address')
                     ->columnSpanFull(),
-                Forms\Components\Toggle::make('isAdmin'),
+                Forms\Components\Toggle::make('isAdmin')
+                    ->onColor('success'),
+                Forms\Components\Toggle::make('is_banned')
+                    ->label('Ban')
+                    ->onColor('danger'),
                 Forms\Components\TextInput::make('otp')
                     ->maxLength(255)
                     ->default(null),
                 Forms\Components\Toggle::make('status')
-                    ->required(),
+                    ->required()
+                    ->onColor('success'),
                 Forms\Components\DateTimePicker::make('last_login'),
             ]);
     }

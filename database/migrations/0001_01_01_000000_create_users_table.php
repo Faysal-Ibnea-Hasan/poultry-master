@@ -26,6 +26,8 @@ return new class extends Migration {
             $table->boolean('status')->default(true);
             $table->string('device_name')->nullable();
             $table->string('device_id')->nullable();
+            $table->boolean('device_id_reset')->default(false);
+            $table->boolean('is_banned')->default(false);
             $table->timestamp('last_login')->nullable();
             $table->rememberToken();
             $table->timestamps();

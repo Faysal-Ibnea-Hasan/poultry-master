@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('sell_id')->constrained('sells')->onDelete('cascade');
             $table->string('sell_description')->nullable();
-            $table->string('product_type')->nullable()->comment('chickens|others');
+            $table->string('product_type')->nullable()->comment('chickens = 1| others = 2');
             $table->integer('quantity')->nullable();
             $table->decimal('unit_price', 15, 2)->nullable();
             $table->decimal('total_weight', 15, 2)->nullable();

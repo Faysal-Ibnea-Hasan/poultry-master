@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->string('plan_name'); // e.g., Monthly, Annual
             $table->string('image')->nullable();
-            $table->enum('type', ['monthly', 'annual', 'lifetime']); // More precise instead of string
+            $table->enum('type', ['monthly', 'annual', 'lifetime','trail']); // More precise instead of string
             $table->decimal('regular_price', 15, 2);
             $table->decimal('offer_price', 15, 2);
             $table->integer('duration_days'); // 30 for monthly, 365 for annual, null for lifetime

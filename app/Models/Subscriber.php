@@ -10,6 +10,9 @@ class Subscriber extends Model
         'user_id',
         'subscription_id',
         'payment_status',
+        'start_date',
+        'end_date',
+        'is_active'
     ];
 
     public function user()

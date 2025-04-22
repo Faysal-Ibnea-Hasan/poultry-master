@@ -34,7 +34,9 @@ class User extends Authenticatable implements FilamentUser
         "status",
         "last_login",
         "device_name",
-        "device_id"
+        "device_id",
+        "device_id_reset",
+        "is_banned"
     ];
     protected $hidden = [
         'password',

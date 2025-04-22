@@ -23,17 +23,24 @@ class SubscriberResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('user_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('subscription_id')
-                    ->required()
-                    ->numeric(),
+                Forms\Components\Select::make('user_id')
+                    ->relationship('user', 'phone') // assuming your relation is named 'user' and you want to show 'name'
+                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->phone} | {$record->name}")
+                    ->searchable()
+                    ->required(),
+                Forms\Components\Select::make('subscription_id')
+                    ->relationship('subscription', 'plan_name')
+                    ->required(),
                 Forms\Components\DateTimePicker::make('start_date')
                     ->required(),
                 Forms\Components\DateTimePicker::make('end_date')
                     ->required(),
-                Forms\Components\TextInput::make('payment_status')
+                Forms\Components\Select::make('payment_status')
+                    ->options([
+                        'paid' => 'Paid',
+                        'partial-paid' => 'Partial Paid',
+                        'unpaid' => 'Unpaid',
+                    ])
                     ->required(),
                 Forms\Components\Toggle::make('is_active')
                     ->required(),
