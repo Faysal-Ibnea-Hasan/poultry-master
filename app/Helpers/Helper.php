@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Helpers;
 
 use Illuminate\Support\Facades\Auth;
@@ -21,5 +22,14 @@ class Helper
             'status' => false,
             'message' => 'Unauthorized'
         ], 401);
+    }
+
+    public static function variableFriendly(string $value): string
+    {
+        return preg_replace('/[^a-z0-9_]/', '',
+            str_replace(' ', '_',
+                strtolower($value)
+            )
+        );
     }
 }

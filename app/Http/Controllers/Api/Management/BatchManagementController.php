@@ -68,7 +68,7 @@ class BatchManagementController extends Controller
 
     public function addBatchToOLd(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $validator = Validator::make(['id' => $request->id], [
             'id' => 'nullable|exists:batches,id',
         ]);
         if ($validator->fails()) {

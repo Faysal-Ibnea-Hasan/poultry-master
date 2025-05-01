@@ -237,7 +237,16 @@ class ManagementRepository implements ManagementInterface
 
     public function batch_wise_details(int $batch_id)
     {
-        $batch = Batch::where('id', $batch_id)->with(['chickType', 'deadChickens', 'expenses.expenseType', 'sells.sellLine'])->first();
+        $batch = Batch::where('created_by',$this->user->id)
+            ->where('id', $batch_id)
+            ->with([
+                'chickType',
+                'deadChickens',
+                'expenses.expenseType',
+                'expenses.foodType',
+                'sells.sellLine'
+            ])
+            ->first();
         if ($batch) {
             return response()->json([
                 'status' => true,

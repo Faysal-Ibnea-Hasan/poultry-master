@@ -41,7 +41,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
     Route::group(['prefix' => 'manager/', 'middleware' => \App\Http\Middleware\CheckSubscription::class], function () {
         Route::match(['get', 'post'], 'batches', [BatchManagementController::class, 'batches']);
-        Route::post('add-to-old-batch', [BatchManagementController::class, 'addBatchToOLd']);
+        Route::post('add-to-old-batch/{id}', [BatchManagementController::class, 'addBatchToOLd']);
         Route::get('batch-overview', [BatchManagementController::class, 'batch_wise_all_data']);
         Route::post('delete-batch/{id}', [BatchManagementController::class, 'deleteBatch']);
 

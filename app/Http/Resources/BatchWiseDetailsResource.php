@@ -3,6 +3,8 @@
 namespace App\Http\Resources;
 
 use App\Enum\ExpenseType;
+use App\Helpers\Helper;
+use App\Models\FoodType;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -36,6 +38,18 @@ class BatchWiseDetailsResource extends JsonResource
         })->sum(function ($sell) {
             return (float)$sell->sellLine->amount;
         });
+
+        //Food Type
+        // Get all food types
+        $foodTypes = FoodType::all(); // or maybe cached if needed
+
+        // Group expenses first
+        $foodExpenses = $this->expenses?->filter(function ($expense) {
+            return $expense->expenseType?->type === ExpenseType::FOOD->value;
+        })
+            ->groupBy(function ($expense) {
+                return $expense->foodType?->id;
+            });
         return [
             'batch_details' => [
                 'batch_name' => (string)$this->batch_number,
@@ -51,13 +65,23 @@ class BatchWiseDetailsResource extends JsonResource
                     : 0,
                 'chicks_age' => (string)round($this->created_at->diffInDays(now())),
             ],
-            'food_details' => [
-                'total_sack' => (string)$this->expenses?->filter(function ($expense) {
-                    return $expense->expenseType?->type === ExpenseType::FOOD->value;
-                })->sum(function ($expense) {
-                    return (float)$expense->number_of_sack;
-                }),
-            ],
+//            'food_details' => [
+//                'total_sack' => (string)$this->expenses?->filter(function ($expense) {
+//                    return $expense->expenseType?->type === ExpenseType::FOOD->value;
+//                })->sum(function ($expense) {
+//                        return (float)$expense->number_of_sack;
+//                    }),
+//            ],
+            // Build the full food details
+            'food_details' => $foodTypes->mapWithKeys(function ($foodType) use ($foodExpenses) {
+                $sacks = $foodExpenses->get($foodType->id)?->sum('number_of_sack') ?? 0;
+                return [
+                    'total_sack' => (string)$this->expenses?->filter(function ($expense) {
+                        return $expense->expenseType?->type === ExpenseType::FOOD->value;
+                    })->sum('number_of_sack'),
+                    Helper::variableFriendly($foodType->name) => (string)$sacks
+                ];
+            }),
             'expense_details' => [
                 'total_expense' => (string)$this->expenses?->sum('amount'),
                 'food_expense' => (string)$this->expenses?->filter(function ($expense) {
@@ -113,12 +137,12 @@ class BatchWiseDetailsResource extends JsonResource
                 'total_expense' => (string)$this->expenses?->sum('amount'),
                 'total_loss' => ($total_sell_amount + $total_other_income) < (string)$this->expenses?->sum('amount')
                     ?
-                    (string)(($total_sell_amount + $total_other_income) - $this->expenses?->sum('amount'))
-                    : "0",
+                    (string)abs(($total_sell_amount + $total_other_income) - $this->expenses?->sum('amount'))
+                    : "",
                 'total_profit' => ($total_sell_amount + $total_other_income) > (string)$this->expenses?->sum('amount')
                     ?
                     (string)(($total_sell_amount + $total_other_income) - $this->expenses?->sum('amount'))
-                    : "0",
+                    : "",
             ]
         ];
     }
