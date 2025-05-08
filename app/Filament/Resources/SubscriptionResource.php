@@ -21,11 +21,20 @@ class SubscriptionResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $locales = ['en' => 'English', 'bn' => 'বাংলা'];
         return $form
             ->schema([
-                Forms\Components\TextInput::make('plan_name')
-                    ->required()
-                    ->maxLength(255),
+                Forms\Components\Tabs::make('Translations')
+                    ->tabs(
+                        collect($locales)->map(function ($label, $locale) {
+                            return Forms\Components\Tabs\Tab::make($label)
+                                ->schema([
+                                    Forms\Components\TextInput::make("translations.{$locale}.plan_name")
+                                        ->required()
+                                        ->maxLength(255),
+                                ])->columns(1);
+                        })->toArray()
+                    ),
                 Forms\Components\FileUpload::make('image')
                     ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/gif'])
                     ->image(),

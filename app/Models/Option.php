@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Model;
 
 class Option extends Model
 {
-
+    use HasTranslations;
     protected $fillable = [
         'name',
         'image',
@@ -20,6 +21,18 @@ class Option extends Model
         'link',
         'action',
     ];
+    public function getNameAttribute()
+    {
+        return $this->getTranslation('name');
+    }public function getTitleAttribute()
+    {
+        return $this->getTranslation('title');
+    }
+
+    public function getSubTitleAttribute()
+    {
+        return $this->getTranslation('sub_title');
+    }
 
     public function results()
     {

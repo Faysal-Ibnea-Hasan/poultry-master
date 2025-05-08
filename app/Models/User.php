@@ -50,4 +50,8 @@ class User extends Authenticatable implements FilamentUser
             'password' => 'hashed',
         ];
     }
+    public function plans()
+    {
+        return $this->hasMany(Subscriber::class,'user_id','id');
+    }
 }

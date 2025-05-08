@@ -62,17 +62,17 @@ class UserController extends Controller
             ], 200);
         }
 
-        // Check OTP resend cooldown
-        $cacheKey = 'otp_resend_' . $request->msisdn;
-        if (Cache::has($cacheKey)) {
-            return response()->json([
-                'status' => false,
-                'message' => 'You can request OTP again after 4 minutes.'
-            ], 429);
-        }
-
-        // Set cooldown period (4 minutes)
-        Cache::put($cacheKey, true, now()->addMinutes(4));
+//        // Check OTP resend cooldown
+//        $cacheKey = 'otp_resend_' . $request->msisdn;
+//        if (Cache::has($cacheKey)) {
+//            return response()->json([
+//                'status' => false,
+//                'message' => 'You can request OTP again after 4 minutes.'
+//            ], 429);
+//        }
+//
+//        // Set cooldown period (4 minutes)
+//        Cache::put($cacheKey, true, now()->addMinutes(4));
 
         return $this->authRepo->otpRequest($request->all());
     }
@@ -110,7 +110,7 @@ class UserController extends Controller
             ], 200);
         }
 
-        return $this->authRepo->setupPin($request->pin, $request->device_name, $request->device_id);
+        return $this->authRepo->setupPin($request->pin, $request->device_name, $request->device_id,$request->isForget);
     }
 
     public function getValidRegions()

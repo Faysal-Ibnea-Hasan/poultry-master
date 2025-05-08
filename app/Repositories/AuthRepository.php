@@ -22,12 +22,34 @@ class AuthRepository implements AuthInterface
 
     public function otpRequest(array $data)
     {
+
         $otp = rand(1000, 9999);
 
         DB::beginTransaction();
         try {
             $country_code = $this->getCountryCode($data['region']);
             $formatted_number = $this->formatPhoneNumber($data['msisdn'], $data['region']);
+            if ($data['isForget'] == 1) {
+                if ($this->checkIfUserExists($formatted_number)) {
+                    $user = User::where('phone', $formatted_number)->first();
+                    $user->otp = $otp;
+                    $user->save();
+                    if (!$this->bulkSmsService->sendSms($data['msisdn'], $otp)) {
+                        throw new \Exception('Failed to send OTP');
+                    }
+                    DB::commit();
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'OTP has been sent successfully for Forget Password',
+                        'msisdn' => $user->phone,
+                    ]);
+                } else {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'User is not a registered user!',
+                    ]);
+                }
+            }
             if ($this->checkIfUserExists($formatted_number)) {
                 return response()->json([
                     'status' => false,
@@ -44,7 +66,7 @@ class AuthRepository implements AuthInterface
                 DB::commit();
                 return response()->json([
                     'status' => true,
-                    'message' => 'OTP has been sent successfully',
+                    'message' => 'OTP has been sent successfully for Registration',
                     'msisdn' => $user->phone,
                 ]);
             }
@@ -98,7 +120,7 @@ class AuthRepository implements AuthInterface
         ], 200);
     }
 
-    public function setupPin(string $pin, string $device_name, string $device_id)
+    public function setupPin(string $pin, string $device_name, string $device_id, bool $isForget)
     {
         $user = Auth::user();
         if (!$user) {
@@ -106,6 +128,18 @@ class AuthRepository implements AuthInterface
                 'status' => false,
                 'message' => 'Unauthorized. Invalid token.'
             ], 401);
+        }
+        if ($isForget == 1) {
+            $isOldUser = $user->where('device_id', $device_id)->where('device_name', $device_name)->first();
+            if ($isOldUser) {
+                $isOldUser->password = Hash::make($pin);
+                $isOldUser->save();
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'This account is not for this device!'
+                ]);
+            }
         }
 
         $user->update([

@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Api\User;
 
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\SubscriptionResource;
+use App\Http\Resources\UserPlanResource;
 use App\Models\PaymentTransaction;
 use App\Models\Subscriber;
 use App\Models\Subscription;
@@ -12,10 +15,6 @@ use Illuminate\Support\Facades\Validator;
 
 class SubscriptionController extends Controller
 {
-    public function __construct(protected BkashService $bkash)
-    {
-
-    }
 
     public function subscribe(Request $request, BkashService $bkash)
     {
@@ -31,6 +30,12 @@ class SubscriptionController extends Controller
 
         $subscription = Subscription::find($request->subscription_id);
         if (!$subscription) {
+            if ($subscription->status == 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Subscription is not active',
+                ]);
+            }
             return response()->json([
                 'success' => false,
                 'message' => 'Subscription not found',
@@ -54,7 +59,7 @@ class SubscriptionController extends Controller
             ]);
             return response()->json([
                 'message' => 'Redirect user to bKash payment page',
-                'bkashURL' => $paymentResponse,
+                'data' => $paymentResponse,
             ]);
         }
 
@@ -64,7 +69,8 @@ class SubscriptionController extends Controller
     public function paymentSuccess(Request $request, BkashService $bkash)
     {
         $payment = $bkash->executePayment($request->paymentID);
-        if ($payment['transactionStatus'] === 'Completed') {
+
+        if ($payment['statusCode'] == 0000) {
             // Update Payment Transaction
             $paymentTransaction = PaymentTransaction::where('payment_id', $payment['paymentID'])->first();
             if (!$paymentTransaction) {
@@ -119,6 +125,42 @@ class SubscriptionController extends Controller
             return response()->json(['message' => 'Payment successful!', 'data' => $payment]);
         }
 
-        return response()->json(['message' => 'Payment failed!'], 400);
+        return response()->json([
+            'status' => false,
+            'code' => $payment['statusCode'],
+            'message' => $payment['statusMessage']
+        ]);
+    }
+
+    public function subscriptions()
+    {
+        $subscriptions = Subscription::where('status', 1)->get();
+        return response()->json([
+            'status' => true,
+            'message' => 'Data fetched successfully.',
+            'data' => SubscriptionResource::collection($subscriptions),
+        ]);
+    }
+
+    public function plan()
+    {
+        if (!auth('sanctum')->check()) {
+            Helper::unauthorizedResponse();
+        }
+        $user = auth('sanctum')->user();
+        $plan = $user->plans()->where('is_active', 1)->orderBy('end_date', 'desc')->first();
+        if ($plan) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Data fetched successfully.',
+                'data' => new UserPlanResource($plan)
+            ]);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'No plan!',
+                'data' => null
+            ]);
+        }
     }
 }

@@ -29,19 +29,28 @@ class OptionStaticResultResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $locales = ['en' => 'English', 'bn' => 'বাংলা'];
         return $form
             ->schema([
+                Forms\Components\Tabs::make('Translations')
+                    ->tabs(
+                        collect($locales)->map(function ($label, $locale) {
+                            return Forms\Components\Tabs\Tab::make($label)
+                                ->schema([
+                                    Forms\Components\TextInput::make("translations.{$locale}.title")
+                                        ->required()
+                                        ->maxLength(255),
+                                    Forms\Components\TextInput::make("translations.{$locale}.sub_title")
+                                        ->required()
+                                        ->maxLength(255),
+                                ])->columns(1);
+                        })->toArray()
+                    ),
                 Forms\Components\Select::make('option_id')
                     ->label('Menu')
                     ->options(fn() => Option::pluck('name', 'id'))
                     ->searchable()
                     ->required(),
-                Forms\Components\TextInput::make('title')
-                    ->maxLength(255)
-                    ->default(null),
-                Forms\Components\TextInput::make('sub_title')
-                    ->maxLength(255)
-                    ->default(null),
                 FileUpload::make('file')
                     ->label('Image')
                     ->disk('public')

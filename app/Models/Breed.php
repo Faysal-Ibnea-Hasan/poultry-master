@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Model;
 
 class Breed extends Model
 {
+    use HasTranslations;
+
     protected $fillable = [
         'name',
         'description',
@@ -14,6 +17,24 @@ class Breed extends Model
         'purpose',
         'characteristics',
     ];
+
+    public function getNameAttribute()
+    {
+        return $this->getTranslation('name');
+    }
+
+    public function getDescriptionAttribute()
+    {
+        return $this->getTranslation('description');
+    }
+    public function getPurposeAttribute()
+    {
+        return $this->getTranslation('purpose');
+    }
+    public function getCharacteristicsAttribute()
+    {
+        return $this->getTranslation('characteristics');
+    }
 
     public function company()
     {

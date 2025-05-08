@@ -7,7 +7,7 @@ interface AuthInterface
 
     public function verifyOtp(array $data);
 
-    public function setupPin(string $pin,string $device_name,string $device_id);
+    public function setupPin(string $pin, string $device_name, string $device_id, bool $isForget);
 
     public function login(array $data);
 

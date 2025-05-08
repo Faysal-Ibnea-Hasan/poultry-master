@@ -24,8 +24,20 @@ class PatchResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $locales = ['en' => 'English', 'bn' => 'বাংলা'];
         return $form
             ->schema([
+                Forms\Components\Tabs::make('Translations')
+                    ->tabs(
+                        collect($locales)->map(function ($label, $locale) {
+                            return Forms\Components\Tabs\Tab::make($label)
+                                ->schema([
+                                    Forms\Components\TextInput::make("translations.{$locale}.title")
+                                        ->required()
+                                        ->maxLength(255),
+                                ])->columns(1);
+                        })->toArray()
+                    ),
                 Forms\Components\Select::make('design_type_id')
                     ->options(fn() => DesignType::pluck('type', 'id'))
                     ->label('Design Type')
@@ -40,9 +52,6 @@ class PatchResource extends Resource
                     ->disabled()
                     ->dehydrated() // Still saves in the database
                     ->required(),
-                Forms\Components\TextInput::make('title')
-                    ->maxLength(255)
-                    ->default(null),
                 Forms\Components\TextInput::make('content_type')
                     ->maxLength(255)
                     ->default(null),

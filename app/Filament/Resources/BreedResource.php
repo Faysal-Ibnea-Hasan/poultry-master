@@ -22,32 +22,57 @@ class BreedResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $locales = ['en' => 'English', 'bn' => 'বাংলা'];
+
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->label('Breed name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('description')
-                    ->label('Breed description')
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('average_life_span')
-                    ->label('Average Life Span (months)')
-                    ->numeric()
-                    ->default(null),
-                Forms\Components\TextInput::make('average_weight')
-                    ->label('Average Weight (kg)')
-                    ->numeric()
-                    ->default(null),
-                Forms\Components\TextInput::make('purpose')
-                    ->label('Purpose')
-                    ->maxLength(50)
-                    ->default(null),
-                Forms\Components\Textarea::make('characteristics')
-                    ->label('Characteristics')
-                    ->columnSpanFull(),
+                Forms\Components\Section::make('Translations')
+                    ->schema([
+                        Forms\Components\Tabs::make()
+                            ->tabs(
+                                collect($locales)->map(function ($label, $locale) {
+                                    return Forms\Components\Tabs\Tab::make($label)
+                                        ->schema([
+                                            Forms\Components\Grid::make(2)->schema([
+                                                Forms\Components\TextInput::make("translations.{$locale}.name")
+                                                    ->label('Breed Name')
+                                                    ->required()
+                                                    ->maxLength(255),
+
+                                                Forms\Components\TextInput::make("translations.{$locale}.purpose")
+                                                    ->label('Purpose')
+                                                    ->maxLength(50),
+                                            ]),
+
+                                            Forms\Components\Textarea::make("translations.{$locale}.description")
+                                                ->label('Breed Description')
+                                                ->columnSpanFull(),
+
+                                            Forms\Components\Textarea::make("translations.{$locale}.characteristics")
+                                                ->label('Characteristics')
+                                                ->columnSpanFull(),
+                                        ]);
+                                })->toArray()
+                            )
+                    ])
+                    ->columns(1),
+
+                Forms\Components\Section::make('Breed Info')
+                    ->schema([
+                        Forms\Components\Grid::make(2)->schema([
+                            Forms\Components\TextInput::make('average_life_span')
+                                ->label('Average Life Span (months)')
+                                ->numeric(),
+
+                            Forms\Components\TextInput::make('average_weight')
+                                ->label('Average Weight (kg)')
+                                ->numeric(),
+                        ]),
+                    ]),
             ]);
     }
+
+
     public static function shouldRegisterNavigation(): bool // Hide or show in navigation
     {
         return true;
@@ -89,6 +114,7 @@ class BreedResource extends Resource
                 ]),
             ]);
     }
+
 
     public static function getRelations(): array
     {

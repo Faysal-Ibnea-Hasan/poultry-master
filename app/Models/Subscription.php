@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Model;
 
 class Subscription extends Model
 {
+    use HasTranslations;
+
     protected $fillable = [
         "plan_name",
         "image",
@@ -19,5 +22,9 @@ class Subscription extends Model
         'start_date' => 'datetime',
         'end_date' => 'datetime',
     ];
+    public function getPlanNameAttribute()
+    {
+        return $this->getTranslation('plan_name');
+    }
 
 }

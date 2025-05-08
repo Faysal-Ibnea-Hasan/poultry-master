@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 
 class Expense extends Model
 {
+    use HasTranslations;
+
     protected $fillable = [
         'company_id',
         'batch_id',
@@ -25,6 +28,11 @@ class Expense extends Model
     protected $casts = [
         'date' => 'date:Y-m-d',
     ];
+
+    public function getNameAttribute()
+    {
+        return $this->getTranslation('name');
+    }
 
     public function setDateAttribute($value)
     {

@@ -8,6 +8,7 @@ use App\Models\Option;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
@@ -34,26 +35,37 @@ class OptionResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $locales = ['en' => 'English', 'bn' => 'বাংলা'];
         return $form
             ->schema([
                 // 📌 Basic Information
+
                 Fieldset::make('Basic Information')->schema([
-                    TextInput::make('name')
-                        ->label('Menu Name')
-                        ->placeholder('Enter a menu name')
-                        ->required()
-                        ->maxLength(255)
-                        ->unique(table: 'options', column: 'name', ignoreRecord: true),
+                    Tabs::make('Translations')
+                        ->tabs(
+                            collect($locales)->map(function ($label, $locale) {
+                                return Tabs\Tab::make($label)
+                                    ->schema([
+                                        TextInput::make("translations.{$locale}.name")
+                                            ->label('Menu Name')
+                                            ->placeholder('Enter a menu name')
+                                            ->required()
+                                            ->maxLength(255)
+                                            ->unique(table: 'options', column: 'name', ignoreRecord: true),
 
-                    TextInput::make('title')
-                        ->label('Dynamic Title')
-                        ->placeholder('Enter a custom title')
-                        ->maxLength(255),
+                                        TextInput::make("translations.{$locale}.title")
+                                            ->label('Dynamic Title')
+                                            ->placeholder('Enter a custom title')
+                                            ->maxLength(255),
 
-                    TextInput::make('sub_title')
-                        ->label('Subtitle')
-                        ->placeholder('Enter a subtitle')
-                        ->maxLength(255),
+                                        TextInput::make("translations.{$locale}.sub_title")
+                                            ->label('Subtitle')
+                                            ->placeholder('Enter a subtitle')
+                                            ->maxLength(255),
+                                    ])->columns(1);
+                            })->toArray()
+                        ),
+
 
                     FileUpload::make('image')
                         ->label('Image')
@@ -106,6 +118,7 @@ class OptionResource extends Resource
                     ]),
             ]);
     }
+
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist->schema(
@@ -116,6 +129,7 @@ class OptionResource extends Resource
             }
         );
     }
+
     private static function renderResultInfo($record)
     {
         return collect($record->results)

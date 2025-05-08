@@ -39,7 +39,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::group(['prefix' => 'profile/'], function () {
         Route::match(['get', 'post'], 'update', [UserController::class, 'updateProfile']);
     });
-    Route::group(['prefix' => 'manager/', 'middleware' => \App\Http\Middleware\CheckSubscription::class], function () {
+    Route::group(['prefix' => 'manager/'], function () {
         Route::match(['get', 'post'], 'batches', [BatchManagementController::class, 'batches']);
         Route::post('add-to-old-batch/{id}', [BatchManagementController::class, 'addBatchToOLd']);
         Route::get('batch-overview', [BatchManagementController::class, 'batch_wise_all_data']);
@@ -57,6 +57,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
     Route::group(['prefix' => 'subscription/'], function () {
         Route::post('subscribe', [SubscriptionController::class, 'subscribe']);
+        Route::get('get-plan', [SubscriptionController::class, 'subscriptions']);
+        Route::get('get-subscription', [SubscriptionController::class, 'plan']);
     });
 });
 Route::match(['get', 'post'], 'subscription/payment-success', [SubscriptionController::class, 'paymentSuccess']);
