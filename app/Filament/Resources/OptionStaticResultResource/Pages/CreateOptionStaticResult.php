@@ -19,6 +19,7 @@ class CreateOptionStaticResult extends CreateRecord
         $defaultLocale = app()->getLocale(); // Or use config('app.locale')
         $data['title'] = $translations[$defaultLocale]['title'] ?? null;
         $data['sub_title'] = $translations[$defaultLocale]['sub_title'] ?? null;
+        $data['file'] = $translations[$defaultLocale]['file'] ?? null;
 
         $result = OptionStaticResult::create($data);
 

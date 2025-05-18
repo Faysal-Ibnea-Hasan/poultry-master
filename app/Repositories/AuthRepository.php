@@ -164,15 +164,26 @@ class AuthRepository implements AuthInterface
                 'message' => 'Invalid credentials'
             ], 200);
         }
-        if ($user->device_id !== $data['device_id'] || $user->device_id == null) {
-            return response()->json([
-                'status' => false,
-                'message' => 'You can\'t login with this device'
-            ], 200);
+        if (($user->device_id !== $data['device_id'] || $user->device_id == null) && !$user->isAdmin) {
+            if ($user->device_id_reset == 1) {
+                $token = $user->createToken('auth_token')->plainTextToken;
+                $user->update([
+                    'device_id' => $data['device_id'],
+                    'device_id_reset' => 0
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'You can\'t login with this device'
+                ], 200);
+            }
+        } else {
+            if ($user->isAdmin == 1) {
+                $user->update(['isPro' => 1]);
+            }
+            $token = $user->createToken('auth_token')->plainTextToken;
         }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
+        $user->update(['last_login' => now()]);
         return response()->json([
             'status' => true,
             'message' => 'Login successful',

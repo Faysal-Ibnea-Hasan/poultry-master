@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class OptionStaticResult extends Model
 {
     use HasTranslations;
+
     protected $fillable = [
         "option_id",
         "title",
@@ -19,6 +20,7 @@ class OptionStaticResult extends Model
     {
         return $this->belongsTo(Option::class);
     }
+
     public function getTitleAttribute()
     {
         return $this->getTranslation('title');
@@ -27,5 +29,10 @@ class OptionStaticResult extends Model
     public function getSubTitleAttribute()
     {
         return $this->getTranslation('sub_title');
+    }
+
+    public function getFileAttribute()
+    {
+        return $this->getTranslation('file');
     }
 }

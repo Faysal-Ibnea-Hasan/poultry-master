@@ -41,8 +41,12 @@ class OptionStaticResultResource extends Resource
                                         ->required()
                                         ->maxLength(255),
                                     Forms\Components\TextInput::make("translations.{$locale}.sub_title")
-                                        ->required()
                                         ->maxLength(255),
+                                    FileUpload::make("translations.{$locale}.file")
+                                        ->label('Image')
+                                        ->disk('public')
+                                        ->visibility('public')
+                                        ->nullable(),
                                 ])->columns(1);
                         })->toArray()
                     ),
@@ -51,11 +55,6 @@ class OptionStaticResultResource extends Resource
                     ->options(fn() => Option::pluck('name', 'id'))
                     ->searchable()
                     ->required(),
-                FileUpload::make('file')
-                    ->label('Image')
-                    ->disk('public')
-                    ->visibility('public')
-                    ->nullable(),
             ]);
     }
 

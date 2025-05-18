@@ -18,9 +18,6 @@ class User extends Authenticatable implements FilamentUser
         return str_ends_with($this->email, 'poultrymasterbd.com') && $this->hasVerifiedEmail();
     }
 
-    protected $guarded = [
-        'isAdmin'
-    ];
     protected $fillable = [
         'name',
         'email',
@@ -36,7 +33,8 @@ class User extends Authenticatable implements FilamentUser
         "device_name",
         "device_id",
         "device_id_reset",
-        "is_banned"
+        "is_banned",
+        "isPro"
     ];
     protected $hidden = [
         'password',
@@ -50,8 +48,9 @@ class User extends Authenticatable implements FilamentUser
             'password' => 'hashed',
         ];
     }
+
     public function plans()
     {
-        return $this->hasMany(Subscriber::class,'user_id','id');
+        return $this->hasMany(Subscriber::class, 'user_id', 'id');
     }
 }

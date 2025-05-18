@@ -25,6 +25,7 @@ class EditOptionStaticResult extends EditRecord
         $defaultLocale = app()->getLocale(); // Or use config('app.locale')
         $data['title'] = $translations[$defaultLocale]['title'] ?? $record->title;
         $data['sub_title'] = $translations[$defaultLocale]['sub_title'] ?? $record->sub_title;
+        $data['file'] = $translations[$defaultLocale]['file'] ?? $record->sub_title;
 
         $record->update($data);
 
@@ -46,6 +47,7 @@ class EditOptionStaticResult extends EditRecord
             $translations[$locale] = [
                 'title' => $this->record->getTranslation('title', $locale),
                 'sub_title' => $this->record->getTranslation('sub_title', $locale),
+                'file' => $this->record->getTranslation('file', $locale),
             ];
         }
 
