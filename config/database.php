@@ -18,6 +18,12 @@ return [
 
     'default' => env('DB_CONNECTION', 'sqlite'),
 
+    'dump' => [
+        'dump_binary_path' => env('DB_DUMP_PATH'), // use env variable
+        'use_single_transaction' => true,
+        'timeout' => 60,
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Database Connections

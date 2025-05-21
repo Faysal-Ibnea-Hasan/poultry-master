@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\Subscriber;
 use Illuminate\Support\Facades\Auth;
 
 class Helper
@@ -9,6 +10,11 @@ class Helper
     public static function isAuthenticated(): bool
     {
         return Auth::guard('sanctum')->check();
+    }
+
+    public static function checkSubscription(int $userId): ?int
+    {
+        return Subscriber::where('user_id', $userId)->value('subscription_id');
     }
 
     public static function getAuthenticatedUser()

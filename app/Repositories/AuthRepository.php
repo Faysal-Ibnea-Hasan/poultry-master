@@ -2,7 +2,10 @@
 
 namespace App\Repositories;
 
+use App\Helpers\Helper;
 use App\Interfaces\AuthInterface;
+use App\Models\Subscriber;
+use App\Models\Subscription;
 use App\Models\User;
 use App\Services\BulkSmsService;
 use Illuminate\Support\Facades\Auth;
@@ -10,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;
+
 
 class AuthRepository implements AuthInterface
 {
@@ -157,7 +161,21 @@ class AuthRepository implements AuthInterface
     public function login(array $data)
     {
         $user = User::where('phone', $data['msisdn'])->first();
-
+        $isSubscriber = Helper::checkSubscription($user->id);
+        $trialPackage = Subscription::where('type', 'trial')->where('status', 1)->first();
+        $claimed = true;
+        if (is_null($isSubscriber) && $trialPackage) {
+            Subscriber::create([
+                'user_id' => $user->id,
+                'subscription_id' => $trialPackage->id,
+                'start_date' => now(),
+                'end_date' => now()->addDay((int)$trialPackage->duration_days),
+                'payment_status' => 'paid',
+                'is_active' => 1,
+            ]);
+            $user->update(['isPro' => 1]);
+            $claimed = false;
+        }
         if (!$user || !Hash::check($data['pin'], $user->password)) {
             return response()->json([
                 'status' => false,
@@ -183,13 +201,17 @@ class AuthRepository implements AuthInterface
             }
             $token = $user->createToken('auth_token')->plainTextToken;
         }
+
         $user->update(['last_login' => now()]);
+
         return response()->json([
             'status' => true,
             'message' => 'Login successful',
             'token' => $token,
             'user_name' => $user->name,
-            'msisdn' => $user->phone
+            'msisdn' => $user->phone,
+            'last_login' => $user->last_login,
+            'is_claimed' => $claimed,
         ], 200);
     }
 

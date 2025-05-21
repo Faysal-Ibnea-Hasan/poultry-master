@@ -107,6 +107,7 @@ class SubscriptionController extends Controller
                     'payment_status' => 'paid',
                     'is_active' => 1,
                 ]);
+                $subscriber->user?->update(['isPro' => 1]);
             }
 
             $paymentTransaction->update([

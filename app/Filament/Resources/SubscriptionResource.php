@@ -40,7 +40,7 @@ class SubscriptionResource extends Resource
                     ->image(),
                 Forms\Components\Select::make('type')
                     ->options([
-                        'trail' => 'Trail',
+                        'trial' => 'Trial',
                         'monthly' => 'Monthly',
                         'annual' => 'Annual',
                         'lifetime' => 'Lifetime',

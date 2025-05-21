@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Patch extends Model
 {
     use HasTranslations;
+
     protected $fillable = [
         "design_type_id",
         "code",
@@ -16,14 +17,17 @@ class Patch extends Model
         "order",
         "status",
     ];
+
     public function getTitleAttribute()
     {
         return $this->getTranslation('title');
     }
+
     public function designType()
     {
         return $this->belongsTo(DesignType::class);
     }
+
     public function options()
     {
         return $this->belongsToMany(Option::class, 'option_patches');

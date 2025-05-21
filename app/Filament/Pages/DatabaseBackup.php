@@ -11,6 +11,10 @@ class DatabaseBackup extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-arrow-down-tray';
     protected static ?string $navigationLabel = 'Backup DB';
+    protected static ?string $navigationGroup = 'Database Backup';
+
+    protected static ?int $navigationSort = 99;
+
     protected static string $view = 'filament.pages.database-backup';
 
 //    public function backupAndDownload()
@@ -44,13 +48,6 @@ class DatabaseBackup extends Page
 //    }
     public function backupAndDownload()
     {
-        try {
-            Artisan::call('backup:run', ['--only-db' => true]);
-            $output = Artisan::output();
-            logger('Backup run output: ' . $output);
-        } catch (\Exception $e) {
-            logger('Backup run error: ' . $e->getMessage());
-        }
         // Trigger DB backup (spatie/laravel-backup must already be set up)
         Artisan::call('backup:run --only-db');
 
